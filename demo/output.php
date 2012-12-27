@@ -5,8 +5,9 @@ include('../PhraseBuilder.php');
 
 use Gregwar\Captcha\CaptchaBuilder;
 
-$captcha = new CaptchaBuilder;
-echo $captcha
+header('Content-type: image/jpeg');
+
+CaptchaBuilder::create()
     ->build()
-    ->get(20)
+    ->output(20)
     ;

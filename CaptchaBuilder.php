@@ -47,6 +47,17 @@ class CaptchaBuilder
         return $this->phrase;
     }
 
+    /**
+     * Instantiation
+     */
+    public static function create()
+    {
+        return new self;
+    }
+
+    /**
+     * Returns all the scrambling functions
+     */
     public function getFunctions()
     {
         $self = $this;
