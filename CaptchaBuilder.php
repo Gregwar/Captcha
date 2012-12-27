@@ -181,9 +181,17 @@ class CaptchaBuilder
     public function get($quality = 80)
     {
         ob_start();
-        imagejpeg($this->contents, null, $quality);
+        $this->output($quality);
 
         return ob_get_clean();
+    }
+
+    /**
+     * Outputs the image
+     */
+    public function output($quality = 80)
+    {
+        imagejpeg($this->contents, null, $quality);
     }
 
     /**
