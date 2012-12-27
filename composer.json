@@ -10,6 +10,10 @@
             "name": "Grégoire Passault",
             "email": "g.passault@gmail.com",
             "homepage": "http://www.gregwar.com/"
+        },
+        {
+            "name": "Jeremy Livingston",
+            "email": "jeremy.j.livingston@gmail.com"
         }
     ],
     "require": {
