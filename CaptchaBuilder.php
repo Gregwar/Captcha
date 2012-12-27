@@ -140,7 +140,7 @@ class CaptchaBuilder
         $angles = $this->rand(0, 1) ? true : false;
 
         // Gets the text size and start position
-        $size = $width / strlen($phrase);
+        $size = $width / strlen($phrase) - $this->rand(0,3) - 1;
         $box = imagettfbbox($size, 0, $font, $phrase);
         $textWidth = $box[2] - $box[0];
         $textHeight = $box[1] - $box[7];
