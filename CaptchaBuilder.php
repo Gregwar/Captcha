@@ -27,11 +27,24 @@ class CaptchaBuilder
     protected $contents = null;
 
     /**
+     * @var string
+     */
+    protected $phrase = null;
+
+    /**
      * The image contents
      */
     public function getContents()
     {
         return $this->contents;
+    }
+
+    /**
+     * Gets the captcha phrase
+     */
+    public function getPhrase()
+    {
+        return $this->phrase;
     }
 
     public function getFunctions()
@@ -95,6 +108,8 @@ class CaptchaBuilder
         if ($phrase === null) {
             $phrase = PhraseBuilder::build();
         }
+
+        $this->phrase = $phrase;
 
         $i   = imagecreatetruecolor($width, $height);
         $col = imagecolorallocate($i, $this->rand(0, 150), $this->rand(0, 150), $this->rand(0, 150));
