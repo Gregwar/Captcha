@@ -34,6 +34,47 @@ class CaptchaBuilder
         return $this->contents;
     }
 
+    public function getFunctions()
+    {
+        $self = $this;
+
+        return array(
+            // Random lines
+            function($image, $width, $height) use ($self) {
+                $tcol = imagecolorallocate($image, $self->rand(100, 255), $self->rand(100, 255), $self->rand(100, 255));
+                $Xa   = $self->rand(0, $width);
+                $Ya   = $self->rand(0, $height);
+                $Xb   = $self->rand(0, $width);
+                $Yb   = $self->rand(0, $height);
+                imageline($image, $Xa, $Ya, $Xb, $Yb, $tcol);
+            },
+            // Random circles
+            function($image, $width, $height) use ($self) {
+                $tcol = imagecolorallocate($image, $self->rand(100, 255), $self->rand(100, 255), $self->rand(100, 255));
+                $Xa   = $self->rand(0, $width);
+                $Ya   = $self->rand(0, $height);
+                $R   = $self->rand(0, min($width, $height));
+                imagearc($image, $Xa, $Ya, $R, $R, 0, 360, $tcol);
+            },
+            // Add some noise
+            function($image, $width, $height) use ($self) {
+                // Noises the image
+                $noise = $self->rand(0.003*($width*$height), 0.03*($width*$height));
+                for ($t = 0; $t < $noise; $t++) {
+                    $tcol = imagecolorallocate($image, $self->rand(0, 255), $self->rand(0, 255), $self->rand(0, 255));
+                    imagesetpixel($image, $self->rand(0, $width), $self->rand(0, $height), $tcol);
+                }
+            }
+        );
+    }
+
+    public function getRandFunction()
+    {
+        $functions = $this->getFunctions();
+
+        return $functions[$this->rand(0, count($functions)-1)];
+    }
+
     /**
      * Generate the image
      */
@@ -56,27 +97,26 @@ class CaptchaBuilder
         }
 
         $i   = imagecreatetruecolor($width, $height);
-        $col = imagecolorallocate($i, $this->rand(0, 110), $this->rand(0, 110), $this->rand(0, 110));
+        $col = imagecolorallocate($i, $this->rand(0, 150), $this->rand(0, 150), $this->rand(0, 150));
 
-        imagefill($i, 0, 0, 0xFFFFFF);
-
-        // Draw random lines
-        for ($t = 0; $t < 10; $t++) {
-            $tcol = imagecolorallocate($i, 100 + $this->rand(0, 150), 100 + $this->rand(0, 150), 100 + $this->rand(0, 150));
-            $Xa   = $this->rand(0, $width);
-            $Ya   = $this->rand(0, $height);
-            $Xb   = $this->rand(0, $width);
-            $Yb   = $this->rand(0, $height);
-            imageline($i, $Xa, $Ya, $Xb, $Yb, $tcol);
-        }
+        $bg = imagecolorallocate($i, $this->rand(150, 255), $this->rand(150, 255), $this->rand(150, 255));
+        $this->background = $bg;
+        imagefill($i, 0, 0, $bg);
 
         // Write CAPTCHA text
         $size       = $width / strlen($phrase);
         $box        = imagettfbbox($size, 0, $font, $phrase);
         $textWidth  = $box[2] - $box[0];
         $textHeight = $box[1] - $box[7];
-
         imagettftext($i, $size, 0, ($width - $textWidth) / 2, ($height - $textHeight) / 2 + $size, $col, $font, $phrase);
+
+        // Apply effects
+        $square = $width * $height;
+        $effects = $this->rand($square/1000, $square/500);
+        for ($e = 0; $e < $effects; $e++) {
+            $function = $this->getRandFunction();
+            $function($i, $width, $height);    
+        }
 
         // Distort the image
         $X          = $this->rand(0, $width);
@@ -102,10 +142,10 @@ class CaptchaBuilder
                 $nY = $nY + $scale * sin($phase + $nX * 0.2);
 
                 $p = $this->bilinearInterpolate($nX - floor($nX), $nY - floor($nY),
-                    $this->getCol($i, floor($nX), floor($nY)),
-                    $this->getCol($i, ceil($nX), floor($nY)),
-                    $this->getCol($i, floor($nX), ceil($nY)),
-                    $this->getCol($i, ceil($nX), ceil($nY)));
+                    $this->getCol($i, floor($nX), floor($nY), $bg),
+                    $this->getCol($i, ceil($nX), floor($nY), $bg),
+                    $this->getCol($i, floor($nX), ceil($nY), $bg),
+                    $this->getCol($i, ceil($nX), ceil($nY), $bg));
 
                 if ($p == 0) {
                     $p = 0xFFFFFF;
@@ -113,6 +153,14 @@ class CaptchaBuilder
 
                 imagesetpixel($contents, $x, $y, $p);
             }
+        }
+        
+        // Apply effects
+        $square = $width * $height;
+        $effects = $this->rand($square/1000, $square/500);
+        for ($e = 0; $e < $effects; $e++) {
+            $function = $this->getRandFunction();
+            $function($i, $width, $height);    
         }
 
         $this->contents = $contents;
@@ -150,7 +198,7 @@ class CaptchaBuilder
      * Returns a random number or the next number in the
      * fingerprint
      */
-    protected function rand($min, $max)
+    public function rand($min, $max)
     {
         if (!is_array($this->fingerprint)) {
             $this->fingerprint = array();
@@ -209,12 +257,12 @@ class CaptchaBuilder
      *
      * @return int
      */
-    protected function getCol($image, $x, $y)
+    protected function getCol($image, $x, $y, $background)
     {
         $L = imagesx($image);
         $H = imagesy($image);
         if ($x < 0 || $x >= $L || $y < 0 || $y >= $H) {
-            return 0xFFFFFF;
+            return $background;
         }
 
         return imagecolorat($image, $x, $y);
