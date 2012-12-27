@@ -47,12 +47,21 @@ class CaptchaBuilder
         return $this->phrase;
     }
 
+    public function __construct($phrase = null)
+    {
+        if ($phrase === null) {
+            $phrase = PhraseBuilder::build();
+        }
+
+        $this->phrase = $phrase;
+    }
+
     /**
      * Instantiation
      */
-    public static function create()
+    public static function create($phrase = null)
     {
-        return new self;
+        return new self($phrase);
     }
 
     /**
@@ -170,7 +179,7 @@ class CaptchaBuilder
     /**
      * Generate the image
      */
-    public function build($phrase = null, $width = 150, $height = 40, $font = null, $fingerprint = null)
+    public function build($width = 150, $height = 40, $font = null, $fingerprint = null)
     {
         if (null !== $fingerprint) {
             $this->fingerprint = $fingerprint;
@@ -184,19 +193,13 @@ class CaptchaBuilder
             $font = __DIR__ . '/Font/captcha'.$this->rand(0, 5).'.ttf';
         }
 
-        if ($phrase === null) {
-            $phrase = PhraseBuilder::build();
-        }
-
-        $this->phrase = $phrase;
-
         $image   = imagecreatetruecolor($width, $height);
         $bg = imagecolorallocate($image, $this->rand(180, 255), $this->rand(180, 255), $this->rand(180, 255));
         $this->background = $bg;
         imagefill($image, 0, 0, $bg);
         
         // Write CAPTCHA text
-        $distort = $this->writePhrase($image, $phrase, $font, $width, $height);
+        $distort = $this->writePhrase($image, $this->phrase, $font, $width, $height);
 
         // Apply effects
         $square = $width * $height;
