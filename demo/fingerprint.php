@@ -5,7 +5,9 @@ include('../PhraseBuilder.php');
 
 use Gregwar\Captcha\CaptchaBuilder;
 
-CaptchaBuilder::create()
+echo count(CaptchaBuilder::create()
     ->build()
-    ->save('out.jpg')
-    ;
+    ->getFingerprint()
+);
+
+echo "\n";
