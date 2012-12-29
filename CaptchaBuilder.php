@@ -40,6 +40,11 @@ class CaptchaBuilder
     }
 
     /**
+     * Temporary dir, for OCR check
+     */
+    public $tempDir = 'temp/';
+
+    /**
      * Gets the captcha phrase
      */
     public function getPhrase()
@@ -93,7 +98,7 @@ class CaptchaBuilder
             function($image, $width, $height) use ($self) {
                 // Noises the image
                 $square = $width*$height;
-                for ($t = 0; $t < $square/500; $t++) {
+                for ($t = 0; $t < $square/100; $t++) {
                     $tcol = imagecolorallocate($image, $self->rand(0, 255), $self->rand(0, 255), $self->rand(0, 255));
                     imagesetpixel($image, $self->rand(0, $width), $self->rand(0, $height), $tcol);
                 }
@@ -118,7 +123,7 @@ class CaptchaBuilder
         }
 
         // Negate ?
-        if ($this->rand(0, 3) == 0) {
+        if ($this->rand(0, 1) == 0) {
             imagefilter($image, IMG_FILTER_NEGATE);
         }
 
@@ -126,18 +131,13 @@ class CaptchaBuilder
         if ($this->rand(0, 10) == 0) {
             imagefilter($image, IMG_FILTER_EDGEDETECT);
         } 
-
-        // Mean removal ?
-        if ($this->rand(0, 10) == 0) {
-            imagefilter($image, IMG_FILTER_MEAN_REMOVAL);
-        }
         
         // Contrast
-        imagefilter($image, IMG_FILTER_CONTRAST, $this->rand(-50, 30));
+        imagefilter($image, IMG_FILTER_CONTRAST, $this->rand(-50, 10));
         
         // Colorize
         if ($this->rand(0, 5) == 0) {
-            imagefilter($image, IMG_FILTER_COLORIZE, $this->rand(-50, 50), $this->rand(-50, 50), $this->rand(-50, 50));
+            imagefilter($image, IMG_FILTER_COLORIZE, $this->rand(-80, 50), $this->rand(-80, 50), $this->rand(-80, 50));
         }
     }
 
@@ -146,8 +146,6 @@ class CaptchaBuilder
      */
     protected function writePhrase($image, $phrase, $font, $width, $height)
     {
-        $angles = $this->rand(0, 1) ? true : false;
-
         // Gets the text size and start position
         $size = $width / strlen($phrase) - $this->rand(0,3) - 1;
         $box = imagettfbbox($size, 0, $font, $phrase);
@@ -156,24 +154,46 @@ class CaptchaBuilder
         $x = ($width - $textWidth) / 2;
         $y = ($height - $textHeight) / 2 + $size;
 
-        if ($angles) {
-            // Write the letters one by one, with random angle
-            for ($i=0; $i<strlen($phrase); $i++) {
-                $col = imagecolorallocate($image, $this->rand(0, 150), $this->rand(0, 150), $this->rand(0, 150));
-                $box = imagettfbbox($size, 0, $font, $phrase[$i]);
-                $w = $box[2] - $box[0];
-                imagettftext($image, $size, $this->rand(-15, 15), $x, $y, $col, $font, $phrase[$i]);
-                $x += $w;
-            }
-
-            return false;
-        } else {
-            // Write on the letters 
+        // Write the letters one by one, with random angle
+        for ($i=0; $i<strlen($phrase); $i++) {
             $col = imagecolorallocate($image, $this->rand(0, 150), $this->rand(0, 150), $this->rand(0, 150));
-            imagettftext($image, $size, 0, $x, $y, $col, $font, $phrase);
-
-            return true;
+            $box = imagettfbbox($size, 0, $font, $phrase[$i]);
+            $w = $box[2] - $box[0];
+            imagettftext($image, $size, $this->rand(-15, 15), $x, $y + $this->rand(-5, 5), $col, $font, $phrase[$i]);
+            $x += $w;
         }
+    }
+
+    /**
+     * Try to read the code against an OCR
+     */
+    public function isOCRReadable()
+    {
+        if (!is_dir($this->tempDir)) {
+            @mkdir($this->tempDir, 0755, true);
+        }
+
+        $tempj = $this->tempDir . uniqid('captcha', true) . '.jpg';
+        $tempp = $this->tempDir . uniqid('captcha', true) . '.pgm';
+
+        $this->save($tempj);
+        shell_exec("convert $tempj $tempp");
+        $value = trim(strtolower(shell_exec("ocrad $tempp")));
+
+        @unlink($tempj);
+        @unlink($tempp);
+
+        return ($value == $this->phrase);
+    }
+
+    /**
+     * Builds while the code is readable against an OCR
+     */
+    public function buildAgainstOCR($width = 150, $height = 40, $font = null, $fingerprint = null)
+    {
+        do {
+            $this->build();
+        } while ($this->isOCRReadable());
     }
 
     /**
@@ -199,11 +219,11 @@ class CaptchaBuilder
         imagefill($image, 0, 0, $bg);
         
         // Write CAPTCHA text
-        $distort = $this->writePhrase($image, $this->phrase, $font, $width, $height);
+        $this->writePhrase($image, $this->phrase, $font, $width, $height);
 
         // Apply effects
         $square = $width * $height;
-        $effects = $this->rand($square/3000, $square/1000);
+        $effects = $this->rand($square/1000, $square/500);
         for ($e = 0; $e < $effects; $e++) {
             $function = $this->getScramblingFunction();
             for ($i=0; $i<$square/5000; $i++) {
@@ -215,42 +235,38 @@ class CaptchaBuilder
         $X          = $this->rand(0, $width);
         $Y          = $this->rand(0, $height);
         $phase      = $this->rand(0, 10);
-        $scale      = 1.3 + $this->rand(0, 10000) / 30000;
+        $scale      = 1.0 + $this->rand(0, 10000) / 30000;
         $contents   = imagecreatetruecolor($width, $height);
 
         // Distort the image
-        if ($distort) {
-            for ($x = 0; $x < $width; $x++) {
-                for ($y = 0; $y < $height; $y++) {
-                    $Vx = $x - $X;
-                    $Vy = $y - $Y;
-                    $Vn = sqrt($Vx * $Vx + $Vy * $Vy);
+        for ($x = 0; $x < $width; $x++) {
+            for ($y = 0; $y < $height; $y++) {
+                $Vx = $x - $X;
+                $Vy = $y - $Y;
+                $Vn = sqrt($Vx * $Vx + $Vy * $Vy);
 
-                    if ($Vn != 0) {
-                        $Vn2 = $Vn + 4 * sin($Vn / 8);
-                        $nX  = $X + ($Vx * $Vn2 / $Vn);
-                        $nY  = $Y + ($Vy * $Vn2 / $Vn);
-                    } else {
-                        $nX = $X;
-                        $nY = $Y;
-                    }
-                    $nY = $nY + $scale * sin($phase + $nX * 0.2);
-
-                    $p = $this->bilinearInterpolate($nX - floor($nX), $nY - floor($nY),
-                        $this->getCol($image, floor($nX), floor($nY), $bg),
-                        $this->getCol($image, ceil($nX), floor($nY), $bg),
-                        $this->getCol($image, floor($nX), ceil($nY), $bg),
-                        $this->getCol($image, ceil($nX), ceil($nY), $bg));
-
-                    if ($p == 0) {
-                        $p = 0xFFFFFF;
-                    }
-
-                    imagesetpixel($contents, $x, $y, $p);
+                if ($Vn != 0) {
+                    $Vn2 = $Vn + 4 * sin($Vn / 10);
+                    $nX  = $X + ($Vx * $Vn2 / $Vn);
+                    $nY  = $Y + ($Vy * $Vn2 / $Vn);
+                } else {
+                    $nX = $X;
+                    $nY = $Y;
                 }
+                $nY = $nY + $scale * sin($phase + $nX * 0.2);
+
+                $p = $this->bilinearInterpolate($nX - floor($nX), $nY - floor($nY),
+                    $this->getCol($image, floor($nX), floor($nY), $bg),
+                    $this->getCol($image, ceil($nX), floor($nY), $bg),
+                    $this->getCol($image, floor($nX), ceil($nY), $bg),
+                    $this->getCol($image, ceil($nX), ceil($nY), $bg));
+
+                if ($p == 0) {
+                    $p = 0xFFFFFF;
+                }
+
+                imagesetpixel($contents, $x, $y, $p);
             }
-        } else {
-            $contents = $image;
         }
         
         // Post effects

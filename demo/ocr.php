@@ -10,7 +10,7 @@ use Gregwar\Captcha\CaptchaBuilder;
  * ocrad OCR
  */
 
-$tests = 1000;
+$tests = 50000;
 $passed = 0;
 
 shell_exec('rm passed*.jpg');
@@ -22,19 +22,17 @@ for ($i=0; $i<$tests; $i++) {
 
     $captcha
         ->build()
-        ->save('out.jpg', 20)
         ;
 
-    shell_exec('convert out.jpg out.pgm');
-    $result = trim(shell_exec('ocrad out.pgm'));
-
-    if ($result == $captcha->getPhrase()) {
-        echo "passed at ocr\n";
-        shell_exec("cp out.jpg passed$passed.jpg");
+    if ($captcha->isOCRReadable()) {
         $passed++;
+        $captcha->save("passed$passed.jpg");
+        echo "passed at ocr... ";
     } else {
-        echo "failed\n";
+        echo "failed... ";
     }
+
+    echo "pass rate: ".round(100*$passed/($i+1),2)."%\n";
 }
 
 echo "\n";
