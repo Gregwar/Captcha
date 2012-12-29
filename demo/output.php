@@ -9,5 +9,5 @@ header('Content-type: image/jpeg');
 
 CaptchaBuilder::create()
     ->build()
-    ->output(20)
+    ->output(80)
     ;
