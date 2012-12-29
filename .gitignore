@@ -1,1 +1,2 @@
-demo/out.jpg
+demo/*.jpg
+demo/*.pgm

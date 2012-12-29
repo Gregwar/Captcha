@@ -203,7 +203,7 @@ class CaptchaBuilder
 
         // Apply effects
         $square = $width * $height;
-        $effects = $this->rand($square/5000, $square/2500);
+        $effects = $this->rand($square/3000, $square/1000);
         for ($e = 0; $e < $effects; $e++) {
             $function = $this->getScramblingFunction();
             for ($i=0; $i<$square/5000; $i++) {

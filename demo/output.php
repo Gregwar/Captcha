@@ -8,6 +8,6 @@ use Gregwar\Captcha\CaptchaBuilder;
 header('Content-type: image/jpeg');
 
 CaptchaBuilder::create()
-    ->build(300, 70)
+    ->build()
     ->output(20)
     ;
