@@ -153,10 +153,10 @@ class CaptchaBuilder
         $textHeight = $box[1] - $box[7];
         $x = ($width - $textWidth) / 2;
         $y = ($height - $textHeight) / 2 + $size;
+        $col = imagecolorallocate($image, $this->rand(0, 150), $this->rand(0, 150), $this->rand(0, 150));
 
         // Write the letters one by one, with random angle
         for ($i=0; $i<strlen($phrase); $i++) {
-            $col = imagecolorallocate($image, $this->rand(0, 150), $this->rand(0, 150), $this->rand(0, 150));
             $box = imagettfbbox($size, 0, $font, $phrase[$i]);
             $w = $box[2] - $box[0];
             imagettftext($image, $size, $this->rand(-15, 15), $x, $y + $this->rand(-5, 5), $col, $font, $phrase[$i]);
@@ -218,12 +218,22 @@ class CaptchaBuilder
         $this->background = $bg;
         imagefill($image, 0, 0, $bg);
         
+        // Apply effects
+        $square = $width * $height;
+        $effects = $this->rand($square/1500, $square/1000);
+        for ($e = 0; $e < $effects; $e++) {
+            $function = $this->getScramblingFunction();
+            for ($i=0; $i<$square/5000; $i++) {
+                $function($image, $width, $height);    
+            }
+        }
+        
         // Write CAPTCHA text
         $this->writePhrase($image, $this->phrase, $font, $width, $height);
 
         // Apply effects
         $square = $width * $height;
-        $effects = $this->rand($square/1000, $square/500);
+        $effects = $this->rand($square/1500, $square/1000);
         for ($e = 0; $e < $effects; $e++) {
             $function = $this->getScramblingFunction();
             for ($i=0; $i<$square/5000; $i++) {
@@ -235,7 +245,7 @@ class CaptchaBuilder
         $X          = $this->rand(0, $width);
         $Y          = $this->rand(0, $height);
         $phase      = $this->rand(0, 10);
-        $scale      = 1.0 + $this->rand(0, 10000) / 30000;
+        $scale      = 1.1 + $this->rand(0, 10000) / 30000;
         $contents   = imagecreatetruecolor($width, $height);
 
         // Distort the image
