@@ -78,30 +78,23 @@ class CaptchaBuilder
 
         return array(
             // Random lines
-            function($image, $width, $height) use ($self) {
-                $tcol = imagecolorallocate($image, $self->rand(100, 255), $self->rand(100, 255), $self->rand(100, 255));
-                $Xa   = $self->rand(0, $width);
-                $Ya   = $self->rand(0, $height);
-                $Xb   = $self->rand(0, $width);
-                $Yb   = $self->rand(0, $height);
-                imageline($image, $Xa, $Ya, $Xb, $Yb, $tcol);
-            },
-            // Random circles
-            function($image, $width, $height) use ($self) {
-                $tcol = imagecolorallocate($image, $self->rand(100, 255), $self->rand(100, 255), $self->rand(100, 255));
-                $Xa   = $self->rand(0, $width);
-                $Ya   = $self->rand(0, $height);
-                $R   = $self->rand(0, min($width, $height));
-                imagearc($image, $Xa, $Ya, $R, $R, 0, 360, $tcol);
-            },
-            // Add some noise
-            function($image, $width, $height) use ($self) {
-                // Noises the image
-                $square = $width*$height;
-                for ($t = 0; $t < $square/100; $t++) {
-                    $tcol = imagecolorallocate($image, $self->rand(0, 255), $self->rand(0, 255), $self->rand(0, 255));
-                    imagesetpixel($image, $self->rand(0, $width), $self->rand(0, $height), $tcol);
+            function($image, $width, $height, $tcol = null) use ($self) {
+                if ($tcol === null) {
+                    $tcol = imagecolorallocate($image, $self->rand(100, 255), $self->rand(100, 255), $self->rand(100, 255));
                 }
+                if ($self->rand(0,1)) { // Horizontal
+                    $Xa   = $self->rand(0, $width/2);
+                    $Ya   = $self->rand(0, $height);
+                    $Xb   = $self->rand($width/2, $width);
+                    $Yb   = $self->rand(0, $height);
+                } else { // Vertical
+                    $Xa   = $self->rand(0, $width);
+                    $Ya   = $self->rand(0, $height/2);
+                    $Xb   = $self->rand(0, $width);
+                    $Yb   = $self->rand($height/2, $height);
+                }
+                imagesetthickness($image, $self->rand(1, 3));
+                imageline($image, $Xa, $Ya, $Xb, $Yb, $tcol);
             }
         );
     }
@@ -159,9 +152,11 @@ class CaptchaBuilder
         for ($i=0; $i<strlen($phrase); $i++) {
             $box = imagettfbbox($size, 0, $font, $phrase[$i]);
             $w = $box[2] - $box[0];
-            imagettftext($image, $size, $this->rand(-15, 15), $x, $y + $this->rand(-5, 5), $col, $font, $phrase[$i]);
+            imagettftext($image, $size, $this->rand(-12, 12), $x, $y + $this->rand(-5, 5), $col, $font, $phrase[$i]);
             $x += $w;
         }
+
+        return $col;
     }
 
     /**
@@ -214,13 +209,13 @@ class CaptchaBuilder
         }
 
         $image   = imagecreatetruecolor($width, $height);
-        $bg = imagecolorallocate($image, $this->rand(180, 255), $this->rand(180, 255), $this->rand(180, 255));
+        $bg = imagecolorallocate($image, $this->rand(200, 255), $this->rand(200, 255), $this->rand(200, 255));
         $this->background = $bg;
         imagefill($image, 0, 0, $bg);
         
         // Apply effects
         $square = $width * $height;
-        $effects = $this->rand($square/1500, $square/1000);
+        $effects = $this->rand($square/4000, $square/3000);
         for ($e = 0; $e < $effects; $e++) {
             $function = $this->getScramblingFunction();
             for ($i=0; $i<$square/5000; $i++) {
@@ -229,15 +224,15 @@ class CaptchaBuilder
         }
         
         // Write CAPTCHA text
-        $this->writePhrase($image, $this->phrase, $font, $width, $height);
+        $color = $this->writePhrase($image, $this->phrase, $font, $width, $height);
 
         // Apply effects
         $square = $width * $height;
-        $effects = $this->rand($square/1500, $square/1000);
+        $effects = $this->rand($square/4000, $square/3000);
         for ($e = 0; $e < $effects; $e++) {
             $function = $this->getScramblingFunction();
             for ($i=0; $i<$square/5000; $i++) {
-                $function($image, $width, $height);    
+                $function($image, $width, $height, $color);
             }
         }
 
@@ -256,7 +251,7 @@ class CaptchaBuilder
                 $Vn = sqrt($Vx * $Vx + $Vy * $Vy);
 
                 if ($Vn != 0) {
-                    $Vn2 = $Vn + 4 * sin($Vn / 10);
+                    $Vn2 = $Vn + 4 * sin($Vn / 30);
                     $nX  = $X + ($Vx * $Vn2 / $Vn);
                     $nY  = $Y + ($Vy * $Vn2 / $Vn);
                 } else {
@@ -290,7 +285,7 @@ class CaptchaBuilder
     /**
      * Saves the Captcha to a jpeg file
      */
-    public function save($filename, $quality = 80)
+    public function save($filename, $quality = 90)
     {
         imagejpeg($this->contents, $filename, $quality);
     }
@@ -298,7 +293,7 @@ class CaptchaBuilder
     /**
      * Gets the image contents
      */
-    public function get($quality = 80)
+    public function get($quality = 90)
     {
         ob_start();
         $this->output($quality);
@@ -309,7 +304,7 @@ class CaptchaBuilder
     /**
      * Outputs the image
      */
-    public function output($quality = 80)
+    public function output($quality = 90)
     {
         imagejpeg($this->contents, null, $quality);
     }
