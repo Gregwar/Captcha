@@ -37,6 +37,11 @@ class CaptchaBuilder
     protected $builder;
 
     /**
+     * @var bool
+     */
+    protected $distortion = true;
+
+    /**
      * The image contents
      */
     public function getContents()
@@ -65,6 +70,14 @@ class CaptchaBuilder
     }
 
     /**
+     * Enables/disable distortion
+     */
+    public function setDistortion($distortion)
+    {
+        $this->distortion = (bool)$distortion;
+    }
+
+    /**
      * Gets the captcha phrase
      */
     public function getPhrase()
@@ -89,40 +102,27 @@ class CaptchaBuilder
     }
 
     /**
-     * Returns all the scrambling functions
+     * Draw lines over the image
      */
-    public function getScramblingFunctions()
+    public function drawLine($image, $width, $height, $tcol = null)
     {
-        $self = $this;
+        if ($tcol === null) {
+            $tcol = imagecolorallocate($image, $this->rand(100, 255), $this->rand(100, 255), $this->rand(100, 255));
+        }
 
-        return array(
-            // Random lines
-            function($image, $width, $height, $tcol = null) use ($self) {
-                if ($tcol === null) {
-                    $tcol = imagecolorallocate($image, $self->rand(100, 255), $self->rand(100, 255), $self->rand(100, 255));
-                }
-                if ($self->rand(0,1)) { // Horizontal
-                    $Xa   = $self->rand(0, $width/2);
-                    $Ya   = $self->rand(0, $height);
-                    $Xb   = $self->rand($width/2, $width);
-                    $Yb   = $self->rand(0, $height);
-                } else { // Vertical
-                    $Xa   = $self->rand(0, $width);
-                    $Ya   = $self->rand(0, $height/2);
-                    $Xb   = $self->rand(0, $width);
-                    $Yb   = $self->rand($height/2, $height);
-                }
-                imagesetthickness($image, $self->rand(1, 3));
-                imageline($image, $Xa, $Ya, $Xb, $Yb, $tcol);
-            }
-        );
-    }
-
-    public function getScramblingFunction()
-    {
-        $functions = $this->getScramblingFunctions();
-
-        return $functions[$this->rand(0, count($functions)-1)];
+        if ($this->rand(0,1)) { // Horizontal
+            $Xa   = $this->rand(0, $width/2);
+            $Ya   = $this->rand(0, $height);
+            $Xb   = $this->rand($width/2, $width);
+            $Yb   = $this->rand(0, $height);
+        } else { // Vertical
+            $Xa   = $this->rand(0, $width);
+            $Ya   = $this->rand(0, $height/2);
+            $Xb   = $this->rand(0, $width);
+            $Yb   = $this->rand($height/2, $height);
+        }
+        imagesetthickness($image, $this->rand(1, 3));
+        imageline($image, $Xa, $Ya, $Xb, $Yb, $tcol);
     }
 
     /**
@@ -234,12 +234,9 @@ class CaptchaBuilder
         
         // Apply effects
         $square = $width * $height;
-        $effects = $this->rand($square/4000, $square/3000);
+        $effects = $this->rand($square/3000, $square/2000);
         for ($e = 0; $e < $effects; $e++) {
-            $function = $this->getScramblingFunction();
-            for ($i=0; $i<$square/5000; $i++) {
-                $function($image, $width, $height);    
-            }
+            $this->drawLine($image, $width, $height);    
         }
         
         // Write CAPTCHA text
@@ -247,22 +244,34 @@ class CaptchaBuilder
 
         // Apply effects
         $square = $width * $height;
-        $effects = $this->rand($square/4000, $square/3000);
+        $effects = $this->rand($square/3000, $square/2000);
         for ($e = 0; $e < $effects; $e++) {
-            $function = $this->getScramblingFunction();
-            for ($i=0; $i<$square/5000; $i++) {
-                $function($image, $width, $height, $color);
-            }
+            $this->drawLine($image, $width, $height, $color);
         }
 
         // Distort the image
+        if ($this->distortion) {
+            $image = $this->distort($image, $width, $height, $bg);
+        }
+
+        // Post effects
+        $this->postEffect($image);
+
+        $this->contents = $image;
+
+        return $this;
+    }
+
+    /**
+     * Distorts the image
+     */
+    public function distort($image, $width, $height, $bg)
+    {
+        $contents = imagecreatetruecolor($width, $height);
         $X          = $this->rand(0, $width);
         $Y          = $this->rand(0, $height);
         $phase      = $this->rand(0, 10);
         $scale      = 1.1 + $this->rand(0, 10000) / 30000;
-        $contents   = imagecreatetruecolor($width, $height);
-
-        // Distort the image
         for ($x = 0; $x < $width; $x++) {
             for ($y = 0; $y < $height; $y++) {
                 $Vx = $x - $X;
@@ -292,13 +301,8 @@ class CaptchaBuilder
                 imagesetpixel($contents, $x, $y, $p);
             }
         }
-        
-        // Post effects
-        $this->postEffect($contents);
 
-        $this->contents = $contents;
-
-        return $this;
+        return $contents;
     }
 
     /**
