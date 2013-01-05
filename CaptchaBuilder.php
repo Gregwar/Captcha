@@ -104,7 +104,7 @@ class CaptchaBuilder
     /**
      * Draw lines over the image
      */
-    public function drawLine($image, $width, $height, $tcol = null)
+    protected function drawLine($image, $width, $height, $tcol = null)
     {
         if ($tcol === null) {
             $tcol = imagecolorallocate($image, $this->rand(100, 255), $this->rand(100, 255), $this->rand(100, 255));
@@ -344,7 +344,7 @@ class CaptchaBuilder
      * Returns a random number or the next number in the
      * fingerprint
      */
-    public function rand($min, $max)
+    protected function rand($min, $max)
     {
         if (!is_array($this->fingerprint)) {
             $this->fingerprint = array();
