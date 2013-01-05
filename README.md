@@ -62,6 +62,7 @@ API
 
 You can use theses functions :
 
+* **__construct($phrase = null)**, constructs the builder with the given phrase, if the phrase is null, a random one will be generated
 * **getPhrase()**, allow you to get the phrase contents
 * **setDistortion($distortion)**, enable or disable the distortion, call it before `build()`
 * **isOCRReadable()**, returns `true` if the OCR can be read using the `ocrad` software, you'll need to have shell_exec enabled, imagemagick and ocrad installed
