@@ -52,9 +52,9 @@ You'll be able to get the code and compare it with a user input :
 ```php
 <?php
 
-if ($builder->testPhrase($_POST['code'])) {
-    // Accept the form submission
-}
+// Example: storing the phrase in the session to test for the user 
+// input later
+$_SESSION['phrase'] = $builder->getPhrase();
 ```
 
 API
