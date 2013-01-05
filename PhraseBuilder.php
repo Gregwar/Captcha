@@ -7,7 +7,7 @@ namespace Gregwar\Captcha;
  *
  * @author Gregwar <g.passault@gmail.com>
  */
-class PhraseBuilder
+class PhraseBuilder implements PhraseBuilderInterface
 {
     /**
      * Generates  random phrase of given length with given charset

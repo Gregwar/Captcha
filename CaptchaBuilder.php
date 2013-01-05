@@ -9,7 +9,7 @@ namespace Gregwar\Captcha;
  * @author Gregwar <g.passault@gmail.com>
  * @author Jeremy Livingston <jeremy.j.livingston@gmail.com>
  */
-class CaptchaBuilder
+class CaptchaBuilder implements CaptchaBuilderInterface
 {
     /**
      * @var array
@@ -32,7 +32,7 @@ class CaptchaBuilder
     protected $phrase = null;
 
     /**
-     * @var PhraseBuilder
+     * @var PhraseBuilderInterface
      */
     protected $builder;
 
@@ -54,7 +54,7 @@ class CaptchaBuilder
      */
     public $tempDir = 'temp/';
 
-    public function __construct($phrase = null, PhraseBuilder $builder = null)
+    public function __construct($phrase = null, PhraseBuilderInterface $builder = null)
     {
         if ($builder === null) {
             $this->builder = new PhraseBuilder;

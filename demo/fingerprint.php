@@ -1,5 +1,7 @@
 <?php
 
+include('../CaptchaBuilderInterface.php');
+include('../PhraseBuilderInterface.php');
 include('../CaptchaBuilder.php');
 include('../PhraseBuilder.php');
 

@@ -1,5 +1,7 @@
 <?php
 
+include('../CaptchaBuilderInterface.php');
+include('../PhraseBuilderInterface.php');
 include('../CaptchaBuilder.php');
 include('../PhraseBuilder.php');
 
@@ -21,6 +23,7 @@ for ($i=0; $i<$tests; $i++) {
     $captcha = new CaptchaBuilder;
 
     $captcha
+        ->setDistortion(false)
         ->build()
         ;
 
