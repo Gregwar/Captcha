@@ -199,7 +199,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         @unlink($tempj);
         @unlink($tempp);
 
-        return ($value == $this->phrase);
+        return $this->testPhrase($value);
     }
 
     /**
