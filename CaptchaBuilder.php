@@ -75,6 +75,8 @@ class CaptchaBuilder
     public function setDistortion($distortion)
     {
         $this->distortion = (bool)$distortion;
+
+        return $this;
     }
 
     /**
