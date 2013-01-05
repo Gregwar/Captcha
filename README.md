@@ -44,6 +44,7 @@ Or output it directly :
 ```php
 <?php
 
+header('Content-type: image/jpeg');
 $builder->output();
 ```
 
