@@ -32,6 +32,11 @@ class CaptchaBuilder
     protected $phrase = null;
 
     /**
+     * @var PhraseBuilder
+     */
+    protected $builder;
+
+    /**
      * The image contents
      */
     public function getContents()
@@ -44,6 +49,21 @@ class CaptchaBuilder
      */
     public $tempDir = 'temp/';
 
+    public function __construct($phrase = null, PhraseBuilder $builder = null)
+    {
+        if ($builder === null) {
+            $this->builder = new PhraseBuilder;
+        } else {
+            $this->builder = $builder;
+        }
+
+        if ($phrase === null) {
+            $phrase = $this->builder->build();
+        }
+
+        $this->phrase = $phrase;
+    }
+
     /**
      * Gets the captcha phrase
      */
@@ -52,13 +72,12 @@ class CaptchaBuilder
         return $this->phrase;
     }
 
-    public function __construct($phrase = null)
+    /**
+     * Returns true if the given phrase is good
+     */
+    public function testPhrase($phrase)
     {
-        if ($phrase === null) {
-            $phrase = PhraseBuilder::build();
-        }
-
-        $this->phrase = $phrase;
+        return ($this->builder->niceize($phrase) == $this->builder->niceize($this->getPhrase()));
     }
 
     /**
