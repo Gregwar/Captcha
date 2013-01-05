@@ -1,7 +1,7 @@
 Captcha
 =======
 
-Captcha generator
+![Captchas examples](http://gregwar.com/captchas.png)
 
 Installation
 ============
