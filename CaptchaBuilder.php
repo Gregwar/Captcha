@@ -70,6 +70,14 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     }
 
     /**
+     * Setting the phrase
+     */
+    public function setPhrase($phrase)
+    {
+        $this->phrase = (string)$phrase;
+    }
+
+    /**
      * Enables/disable distortion
      */
     public function setDistortion($distortion)
@@ -313,6 +321,14 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     public function save($filename, $quality = 90)
     {
         imagejpeg($this->contents, $filename, $quality);
+    }
+
+    /**
+     * Gets the image GD
+     */
+    public function getGd()
+    {
+        return $this->contents;
     }
 
     /**
