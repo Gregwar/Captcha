@@ -3,6 +3,7 @@ Captcha
 
 ![Captchas examples](http://gregwar.com/captchas.png)
 
+
 Installation
 ============
 
@@ -72,6 +73,12 @@ You can use theses functions :
 * **save($filename, $quality = 80)**, saves the captcha into a jpeg in the $filename, with the given quality
 * **get($quality = 80)**, returns the jpeg data
 * **output($quality = 80)**, directly outputs the jpeg code to a browser
+
+Symfony 2 Bundle
+================
+
+You can have a look at the following repository to enjoy the Symfony 2 bundle packaging this captcha generator :
+https://github.com/Gregwar/CaptchaBundle
 
 License
 =======
