@@ -277,7 +277,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
 
         // set the maximum number of lines to draw in front of the text
         if ($this->maxBehindLines != null && $this->maxBehindLines > 0) {
-            $effects = $this->maxBehindLines - $effects >= 0 ? $effects : $this->maxBehindLines;
+            $effects = min($this->maxBehindLines, $effects);
         }
 
         if ($this->maxBehindLines !== 0 ) {
@@ -296,7 +296,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
 
         // set the maximum number of lines to draw in front of the text
         if ($this->maxFrontLines != null && $this->maxFrontLines > 0) {
-            $effects = $this->maxFrontLines - $effects >= 0 ? $effects : $this->maxFrontLines;
+            $effects = min($this->maxFrontLines, $effects);
         }
 
         if ($this->maxFrontLines !== 0 ) {      
