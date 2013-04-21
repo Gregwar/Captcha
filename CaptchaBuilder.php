@@ -47,6 +47,19 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     protected $distortion = true;
 
     /**
+     * The maximum number of lines to draw in front of
+     * the image. null - use default algorithm
+     */
+    protected $maxFrontLines = null;
+
+    /**
+     * The maximum number of lines to draw behind
+     * the image. null - use default algorithm
+     */
+    protected $maxBehindLines = null;
+
+
+    /**
      * The image contents
      */
     public function getContents()
@@ -91,6 +104,22 @@ class CaptchaBuilder implements CaptchaBuilderInterface
 
         return $this;
     }
+
+
+    public function setMaxBehindLines($maxBehindLines)
+    {
+        $this->maxBehindLines = $maxBehindLines;
+
+        return $this;
+    }
+
+    public function setMaxFrontLines($maxFrontLines)
+    {
+        $this->maxFrontLines = $maxFrontLines;
+
+        return $this;
+    }
+
 
     /**
      * Gets the captcha phrase
@@ -269,18 +298,35 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         // Apply effects
         $square = $width * $height;
         $effects = $this->rand($square/3000, $square/2000);
-        for ($e = 0; $e < $effects; $e++) {
-            $this->drawLine($image, $width, $height);    
+
+        // set the maximum number of lines to draw in front of the text
+        if ($this->maxBehindLines != null && $this->maxBehindLines > 0) {
+            $effects = min($this->maxBehindLines, $effects);
         }
-        
+
+        if ($this->maxBehindLines !== 0 ) {
+            for ($e = 0; $e < $effects; $e++) {
+                $this->drawLine($image, $width, $height);
+            }
+        }
+
+
         // Write CAPTCHA text
         $color = $this->writePhrase($image, $this->phrase, $font, $width, $height);
 
         // Apply effects
         $square = $width * $height;
         $effects = $this->rand($square/3000, $square/2000);
-        for ($e = 0; $e < $effects; $e++) {
-            $this->drawLine($image, $width, $height, $color);
+
+        // set the maximum number of lines to draw in front of the text
+        if ($this->maxFrontLines != null && $this->maxFrontLines > 0) {
+            $effects = min($this->maxFrontLines, $effects);
+        }
+
+        if ($this->maxFrontLines !== 0 ) {      
+            for ($e = 0; $e < $effects; $e++) {
+                $this->drawLine($image, $width, $height, $color);
+            }
         }
 
         // Distort the image
