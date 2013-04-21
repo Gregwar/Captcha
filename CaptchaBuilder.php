@@ -22,6 +22,11 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     protected $useFingerprint = false;
 
     /**
+     * @var string
+     */
+    protected $backgroundColor = null;
+
+    /**
      * @var resource
      */
     protected $contents = null;
@@ -112,6 +117,16 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     }
 
     /**
+     * Sets the background color to use
+     */
+    public function setBackgroundColor($r, $g, $b)
+    {
+        $this->backgroundColor = array($r, $g, $b);
+
+        return $this;
+    }
+
+    /**
      * Draw lines over the image
      */
     protected function drawLine($image, $width, $height, $tcol = null)
@@ -141,6 +156,10 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     protected function postEffect($image)
     {
         if (!function_exists('imagefilter')) {
+            return;
+        }
+
+        if ($this->backgroundColor != null) {
             return;
         }
 
@@ -238,7 +257,12 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         }
 
         $image   = imagecreatetruecolor($width, $height);
-        $bg = imagecolorallocate($image, $this->rand(200, 255), $this->rand(200, 255), $this->rand(200, 255));
+        if ($this->backgroundColor == null) {
+            $bg = imagecolorallocate($image, $this->rand(200, 255), $this->rand(200, 255), $this->rand(200, 255));
+        } else {
+            $color = $this->backgroundColor;
+            $bg = imagecolorallocate($image, $color[0], $color[1], $color[2]);
+        }
         $this->background = $bg;
         imagefill($image, 0, 0, $bg);
         

@@ -73,6 +73,7 @@ You can use theses functions :
 * **save($filename, $quality = 80)**, saves the captcha into a jpeg in the $filename, with the given quality
 * **get($quality = 80)**, returns the jpeg data
 * **output($quality = 80)**, directly outputs the jpeg code to a browser
+* **setBackgroundColor($r, $g, $b)**, sets the background color to force it (this will disable many effects and is not recommended)
 
 Symfony 2 Bundle
 ================
