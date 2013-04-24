@@ -58,6 +58,12 @@ class CaptchaBuilder implements CaptchaBuilderInterface
      */
     protected $maxBehindLines = null;
 
+    /**
+     * Is the interpolation enabled ?
+     *
+     * @var bool
+     */
+    protected $interpolation = true;
 
     /**
      * The image contents
@@ -65,6 +71,18 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     public function getContents()
     {
         return $this->contents;
+    }
+
+    /**
+     * Enable/Disables the interpolation
+     *
+     * @param $interpolate true to enable, false to disable
+     */
+    public function setInterpolation($interpolate = true)
+    {
+        $this->interpolation = $interpolate;
+
+        return $this;
     }
 
     /**
@@ -368,14 +386,18 @@ class CaptchaBuilder implements CaptchaBuilderInterface
                 }
                 $nY = $nY + $scale * sin($phase + $nX * 0.2);
 
-                $p = $this->bilinearInterpolate($nX - floor($nX), $nY - floor($nY),
-                    $this->getCol($image, floor($nX), floor($nY), $bg),
-                    $this->getCol($image, ceil($nX), floor($nY), $bg),
-                    $this->getCol($image, floor($nX), ceil($nY), $bg),
-                    $this->getCol($image, ceil($nX), ceil($nY), $bg));
+                if ($this->interpolation) {
+                    $p = $this->interpolate($nX - floor($nX), $nY - floor($nY),
+                        $this->getCol($image, floor($nX), floor($nY), $bg),
+                        $this->getCol($image, ceil($nX), floor($nY), $bg),
+                        $this->getCol($image, floor($nX), ceil($nY), $bg),
+                        $this->getCol($image, ceil($nX), ceil($nY), $bg));
+                } else {
+                    $p = $this->getCol($image, round($nX), round($nY), $bg);
+                }
 
                 if ($p == 0) {
-                    $p = 0xFFFFFF;
+                    $p = $bg;
                 }
 
                 imagesetpixel($contents, $x, $y, $p);
@@ -459,7 +481,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
      *
      * @return int
      */
-    protected function bilinearInterpolate($x, $y, $nw, $ne, $sw, $se)
+    protected function interpolate($x, $y, $nw, $ne, $sw, $se)
     {
         list($r0, $g0, $b0) = $this->getRGB($nw);
         list($r1, $g1, $b1) = $this->getRGB($ne);

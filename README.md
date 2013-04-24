@@ -74,6 +74,7 @@ You can use theses functions :
 * **get($quality = 80)**, returns the jpeg data
 * **output($quality = 80)**, directly outputs the jpeg code to a browser
 * **setBackgroundColor($r, $g, $b)**, sets the background color to force it (this will disable many effects and is not recommended)
+* **setInterpolation($interpolate)**, enable or disable the interpolation (enabled by default), disabling it will be quicker but the images will look uglier
 
 Symfony 2 Bundle
 ================
