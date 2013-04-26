@@ -42,6 +42,28 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     protected $distortion = true;
 
     /**
+     * set captcha text color
+     * @param array() - RGB Decimal
+     */
+    public function setTextColor(array $color)
+    {
+        $this->textColor = $color;
+    
+        return $this;
+    }
+    
+    /**
+     * set captcha background color
+     * @param array() - RGB Decimal
+     */
+    public function setBackgroundColor(array $color)
+    {
+        $this->backgroundColor = $color;
+    
+        return $this;
+    }
+
+    /**
      * The image contents
      */
     public function getContents()
@@ -175,7 +197,11 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         $textHeight = $box[1] - $box[7];
         $x = ($width - $textWidth) / 2;
         $y = ($height - $textHeight) / 2 + $size;
-        $col = imagecolorallocate($image, $this->rand(0, 150), $this->rand(0, 150), $this->rand(0, 150));
+        
+        if(!count($this->textColor)) {
+            $this->textColor = array('r' => $this->rand(0, 150), 'g' => $this->rand(0, 150), 'b' => $this->rand(0, 150));
+        }
+        $col = imagecolorallocate($image, $this->textColor['r'], $this->textColor['g'], $this->textColor['b']);
 
         // Write the letters one by one, with random angle
         for ($i=0; $i<strlen($phrase); $i++) {
@@ -238,7 +264,12 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         }
 
         $image   = imagecreatetruecolor($width, $height);
-        $bg = imagecolorallocate($image, $this->rand(200, 255), $this->rand(200, 255), $this->rand(200, 255));
+
+        if(!count($this->backgroundColor)) {
+            $this->backgroundColor = array('r' => $this->rand(200, 255), 'g' => $this->rand(200, 255), 'b' => $this->rand(200, 255));
+        }
+
+        $bg = imagecolorallocate($image, $this->backgroundColor['r'], $this->backgroundColor['g'], $this->backgroundColor['b']);
         $this->background = $bg;
         imagefill($image, 0, 0, $bg);
         
