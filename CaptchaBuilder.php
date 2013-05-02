@@ -173,7 +173,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
      */
     public function setTextColor($r, $g, $b)
     {
-        $this->backgroundColor = array($r, $g, $b);
+        $this->textColor = array($r, $g, $b);
 
         return $this;
     }
