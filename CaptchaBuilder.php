@@ -24,6 +24,11 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     /**
      * @var string
      */
+    protected $textColor = null;
+
+    /**
+     * @var string
+     */
     protected $backgroundColor = null;
 
     /**
@@ -164,6 +169,16 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     }
 
     /**
+     * Sets the text color to use
+     */
+    public function setTextColor($r, $g, $b)
+    {
+        $this->textColor = array($r, $g, $b);
+
+        return $this;
+    }
+
+    /**
      * Sets the background color to use
      */
     public function setBackgroundColor($r, $g, $b)
@@ -241,7 +256,11 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         $textHeight = $box[1] - $box[7];
         $x = ($width - $textWidth) / 2;
         $y = ($height - $textHeight) / 2 + $size;
-        $col = imagecolorallocate($image, $this->rand(0, 150), $this->rand(0, 150), $this->rand(0, 150));
+
+        if(!count($this->textColor)) {
+            $this->textColor = array($this->rand(0, 150), $this->rand(0, 150), $this->rand(0, 150));
+        }
+        $col = imagecolorallocate($image, $this->textColor[0], $this->textColor[1], $this->textColor[1]);
 
         // Write the letters one by one, with random angle
         for ($i=0; $i<strlen($phrase); $i++) {
