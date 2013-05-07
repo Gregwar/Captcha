@@ -22,12 +22,12 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     protected $useFingerprint = false;
 
     /**
-     * @var string
+     * @var array
      */
     protected $textColor = null;
 
     /**
-     * @var string
+     * @var array
      */
     protected $backgroundColor = null;
 
@@ -221,7 +221,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
             return;
         }
 
-        if ($this->backgroundColor != null) {
+        if ($this->backgroundColor != null || $this->textColor != null) {
             return;
         }
 
