@@ -1,6 +1,6 @@
 <?php
 
-namespace Gregwar\CaptchaBundle\Generator;
+namespace Gregwar\Captcha;
 
 use Symfony\Component\Finder\Finder;
 
