@@ -64,6 +64,16 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     protected $maxBehindLines = null;
 
     /**
+     * The maximum angle of char
+     */
+    protected $maxAngle = 12;
+
+    /**
+     * The maximum offset of char
+     */
+    protected $maxOffset = 5;
+
+    /**
      * Is the interpolation enabled ?
      *
      * @var bool
@@ -138,6 +148,20 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     public function setMaxFrontLines($maxFrontLines)
     {
         $this->maxFrontLines = $maxFrontLines;
+
+        return $this;
+    }
+
+    public function setMaxAngle($maxAngle)
+    {
+        $this->maxAngle = $maxAngle;
+
+        return $this;
+    }
+
+    public function setMaxOffset($maxOffset)
+    {
+        $this->maxOffset = $maxOffset;
 
         return $this;
     }
@@ -264,7 +288,9 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         for ($i=0; $i<strlen($phrase); $i++) {
             $box = imagettfbbox($size, 0, $font, $phrase[$i]);
             $w = $box[2] - $box[0];
-            imagettftext($image, $size, $this->rand(-12, 12), $x, $y + $this->rand(-5, 5), $col, $font, $phrase[$i]);
+            $angle = $this->rand(-$this->maxAngle, $this->maxAngle);
+            $offset = $this->rand(-$this->maxOffset, $this->maxOffset);
+            imagettftext($image, $size, $angle, $x, $y + $offset, $col, $font, $phrase[$i]);
             $x += $w;
         }
 
