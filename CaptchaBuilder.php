@@ -280,9 +280,11 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         $y = ($height - $textHeight) / 2 + $size;
 
         if (!count($this->textColor)) {
-            $this->textColor = array($this->rand(0, 150), $this->rand(0, 150), $this->rand(0, 150));
+            $textColor = array($this->rand(0, 150), $this->rand(0, 150), $this->rand(0, 150));
+        } else {
+            $textColor = $this->textColor;
         }
-        $col = imagecolorallocate($image, $this->textColor[0], $this->textColor[1], $this->textColor[1]);
+        $col = imagecolorallocate($image, $textColor[0], $textColor[1], $textColor[1]);
 
         // Write the letters one by one, with random angle
         for ($i=0; $i<strlen($phrase); $i++) {
