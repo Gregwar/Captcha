@@ -64,6 +64,16 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     protected $maxBehindLines = null;
 
     /**
+     * The maximum angle of char
+     */
+    protected $maxAngle = 12;
+
+    /**
+     * The maximum offset of char
+     */
+    protected $maxOffset = 5;
+
+    /**
      * Is the interpolation enabled ?
      *
      * @var bool
@@ -115,7 +125,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
      */
     public function setPhrase($phrase)
     {
-        $this->phrase = (string)$phrase;
+        $this->phrase = (string) $phrase;
     }
 
     /**
@@ -123,11 +133,10 @@ class CaptchaBuilder implements CaptchaBuilderInterface
      */
     public function setDistortion($distortion)
     {
-        $this->distortion = (bool)$distortion;
+        $this->distortion = (bool) $distortion;
 
         return $this;
     }
-
 
     public function setMaxBehindLines($maxBehindLines)
     {
@@ -143,6 +152,19 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         return $this;
     }
 
+    public function setMaxAngle($maxAngle)
+    {
+        $this->maxAngle = $maxAngle;
+
+        return $this;
+    }
+
+    public function setMaxOffset($maxOffset)
+    {
+        $this->maxOffset = $maxOffset;
+
+        return $this;
+    }
 
     /**
      * Gets the captcha phrase
@@ -197,7 +219,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
             $tcol = imagecolorallocate($image, $this->rand(100, 255), $this->rand(100, 255), $this->rand(100, 255));
         }
 
-        if ($this->rand(0,1)) { // Horizontal
+        if ($this->rand(0, 1)) { // Horizontal
             $Xa   = $this->rand(0, $width/2);
             $Ya   = $this->rand(0, $height);
             $Xb   = $this->rand($width/2, $width);
@@ -233,11 +255,11 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         // Edge ?
         if ($this->rand(0, 10) == 0) {
             imagefilter($image, IMG_FILTER_EDGEDETECT);
-        } 
-        
+        }
+
         // Contrast
         imagefilter($image, IMG_FILTER_CONTRAST, $this->rand(-50, 10));
-        
+
         // Colorize
         if ($this->rand(0, 5) == 0) {
             imagefilter($image, IMG_FILTER_COLORIZE, $this->rand(-80, 50), $this->rand(-80, 50), $this->rand(-80, 50));
@@ -250,14 +272,14 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     protected function writePhrase($image, $phrase, $font, $width, $height)
     {
         // Gets the text size and start position
-        $size = $width / strlen($phrase) - $this->rand(0,3) - 1;
+        $size = $width / strlen($phrase) - $this->rand(0, 3) - 1;
         $box = imagettfbbox($size, 0, $font, $phrase);
         $textWidth = $box[2] - $box[0];
         $textHeight = $box[1] - $box[7];
         $x = ($width - $textWidth) / 2;
         $y = ($height - $textHeight) / 2 + $size;
 
-        if(!count($this->textColor)) {
+        if (!count($this->textColor)) {
             $this->textColor = array($this->rand(0, 150), $this->rand(0, 150), $this->rand(0, 150));
         }
         $col = imagecolorallocate($image, $this->textColor[0], $this->textColor[1], $this->textColor[1]);
@@ -266,7 +288,9 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         for ($i=0; $i<strlen($phrase); $i++) {
             $box = imagettfbbox($size, 0, $font, $phrase[$i]);
             $w = $box[2] - $box[0];
-            imagettftext($image, $size, $this->rand(-12, 12), $x, $y + $this->rand(-5, 5), $col, $font, $phrase[$i]);
+            $angle = $this->rand(-$this->maxAngle, $this->maxAngle);
+            $offset = $this->rand(-$this->maxOffset, $this->maxOffset);
+            imagettftext($image, $size, $angle, $x, $y + $offset, $col, $font, $phrase[$i]);
             $x += $w;
         }
 
@@ -331,7 +355,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         }
         $this->background = $bg;
         imagefill($image, 0, 0, $bg);
-        
+
         // Apply effects
         $square = $width * $height;
         $effects = $this->rand($square/3000, $square/2000);
@@ -341,12 +365,11 @@ class CaptchaBuilder implements CaptchaBuilderInterface
             $effects = min($this->maxBehindLines, $effects);
         }
 
-        if ($this->maxBehindLines !== 0 ) {
+        if ($this->maxBehindLines !== 0) {
             for ($e = 0; $e < $effects; $e++) {
                 $this->drawLine($image, $width, $height);
             }
         }
-
 
         // Write CAPTCHA text
         $color = $this->writePhrase($image, $this->phrase, $font, $width, $height);
@@ -360,7 +383,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
             $effects = min($this->maxFrontLines, $effects);
         }
 
-        if ($this->maxFrontLines !== 0 ) {      
+        if ($this->maxFrontLines !== 0) {
             for ($e = 0; $e < $effects; $e++) {
                 $this->drawLine($image, $width, $height, $color);
             }
@@ -406,11 +429,14 @@ class CaptchaBuilder implements CaptchaBuilderInterface
                 $nY = $nY + $scale * sin($phase + $nX * 0.2);
 
                 if ($this->interpolation) {
-                    $p = $this->interpolate($nX - floor($nX), $nY - floor($nY),
+                    $p = $this->interpolate(
+                        $nX - floor($nX),
+                        $nY - floor($nY),
                         $this->getCol($image, floor($nX), floor($nY), $bg),
                         $this->getCol($image, ceil($nX), floor($nY), $bg),
                         $this->getCol($image, floor($nX), ceil($nY), $bg),
-                        $this->getCol($image, ceil($nX), ceil($nY), $bg));
+                        $this->getCol($image, ceil($nX), ceil($nY), $bg)
+                    );
                 } else {
                     $p = $this->getCol($image, round($nX), round($nY), $bg);
                 }
@@ -512,15 +538,15 @@ class CaptchaBuilder implements CaptchaBuilderInterface
 
         $m0 = $cx * $r0 + $x * $r1;
         $m1 = $cx * $r2 + $x * $r3;
-        $r  = (int)($cy * $m0 + $y * $m1);
+        $r  = (int) ($cy * $m0 + $y * $m1);
 
         $m0 = $cx * $g0 + $x * $g1;
         $m1 = $cx * $g2 + $x * $g3;
-        $g  = (int)($cy * $m0 + $y * $m1);
+        $g  = (int) ($cy * $m0 + $y * $m1);
 
         $m0 = $cx * $b0 + $x * $b1;
         $m1 = $cx * $b2 + $x * $b3;
-        $b  = (int)($cy * $m0 + $y * $m1);
+        $b  = (int) ($cy * $m0 + $y * $m1);
 
         return ($r << 16) | ($g << 8) | $b;
     }
@@ -551,10 +577,9 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     protected function getRGB($col)
     {
         return array(
-            (int)($col >> 16) & 0xff,
-            (int)($col >> 8) & 0xff,
-            (int)($col) & 0xff,
+            (int) ($col >> 16) & 0xff,
+            (int) ($col >> 8) & 0xff,
+            (int) ($col) & 0xff,
         );
     }
 }
-
