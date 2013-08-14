@@ -66,7 +66,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     /**
      * The maximum angle of char
      */
-    protected $maxAngle = 12;
+    protected $maxAngle = 8;
 
     /**
      * The maximum offset of char
