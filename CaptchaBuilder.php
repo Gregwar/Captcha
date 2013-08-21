@@ -32,6 +32,11 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     protected $backgroundColor = null;
 
     /**
+     * @var array
+     */
+    protected $borderColor = null;
+
+    /**
      * @var resource
      */
     protected $contents = null;
@@ -206,6 +211,16 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     public function setBackgroundColor($r, $g, $b)
     {
         $this->backgroundColor = array($r, $g, $b);
+
+        return $this;
+    }
+
+    /**
+     * Sets the border color to use
+     */
+    public function setBorderColor($r, $g, $b)
+    {
+        $this->borderColor = array($r, $g, $b);
 
         return $this;
     }
@@ -398,6 +413,16 @@ class CaptchaBuilder implements CaptchaBuilderInterface
 
         // Post effects
         $this->postEffect($image);
+
+        if ($this->borderColor !== null) {
+            $borderColor = imagecolorallocate(
+                $image,
+                $this->borderColor[0],
+                $this->borderColor[1],
+                $this->borderColor[2]
+            );
+            imagerectangle($image, 0, 0, $width - 1, $height - 1, $borderColor);
+        }
 
         $this->contents = $image;
 
