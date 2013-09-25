@@ -2,6 +2,8 @@
 
 namespace Gregwar\Captcha;
 
+use \Exception;
+
 /**
  * Builds a new captcha image
  * Uses the fingerprint parameter, if one is passed, to generate the same image
@@ -30,6 +32,11 @@ class CaptchaBuilder implements CaptchaBuilderInterface
      * @var array
      */
     protected $backgroundColor = null;
+
+    /**
+     * @var array
+     */
+    protected $backgroundImages = null;
 
     /**
      * @var resource
@@ -79,6 +86,13 @@ class CaptchaBuilder implements CaptchaBuilderInterface
      * @var bool
      */
     protected $interpolation = true;
+
+    /**
+     * Allowed image types for the background images
+     *
+     * @var array
+     */
+    protected $allowedBackgroundImageTypes = array('image/png', 'image/jpeg', 'image/gif');
 
     /**
      * The image contents
@@ -206,6 +220,16 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     public function setBackgroundColor($r, $g, $b)
     {
         $this->backgroundColor = array($r, $g, $b);
+
+        return $this;
+    }
+
+    /**
+     * Sets the list of background images to use (one image is randomly selected)
+     */
+    public function setBackgroundImages(array $backgroundImages)
+    {
+        $this->backgroundImages = $backgroundImages;
 
         return $this;
     }
@@ -348,15 +372,25 @@ class CaptchaBuilder implements CaptchaBuilderInterface
             $font = __DIR__ . '/Font/captcha'.$this->rand(0, 5).'.ttf';
         }
 
-        $image   = imagecreatetruecolor($width, $height);
-        if ($this->backgroundColor == null) {
-            $bg = imagecolorallocate($image, $this->rand(200, 255), $this->rand(200, 255), $this->rand(200, 255));
+        if (is_null($this->backgroundImages)) {
+            // if background images list is not set, use a color fill as a background
+            $image   = imagecreatetruecolor($width, $height);
+            if ($this->backgroundColor == null) {
+                $bg = imagecolorallocate($image, $this->rand(200, 255), $this->rand(200, 255), $this->rand(200, 255));
+            } else {
+                $color = $this->backgroundColor;
+                $bg = imagecolorallocate($image, $color[0], $color[1], $color[2]);
+            }
+            $this->background = $bg;
+            imagefill($image, 0, 0, $bg);
         } else {
-            $color = $this->backgroundColor;
-            $bg = imagecolorallocate($image, $color[0], $color[1], $color[2]);
+            // use a random background image
+            $randomBackgroundImage = $this->backgroundImages[rand(0, count($this->backgroundImages)-1)];
+
+            $imageType = $this->validateBackgroundImage($randomBackgroundImage);
+
+            $image = $this->createBackgroundImageFromType($randomBackgroundImage, $imageType);
         }
-        $this->background = $bg;
-        imagefill($image, 0, 0, $bg);
 
         // Apply effects
         $square = $width * $height;
@@ -393,7 +427,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
 
         // Distort the image
         if ($this->distortion) {
-            $image = $this->distort($image, $width, $height, $bg);
+            //$image = $this->distort($image, $width, $height, $bg);
         }
 
         // Post effects
@@ -583,5 +617,61 @@ class CaptchaBuilder implements CaptchaBuilderInterface
             (int) ($col >> 8) & 0xff,
             (int) ($col) & 0xff,
         );
+    }
+
+    /**
+     * Validate the background image path. Return the image type if valid
+     *
+     * @param string $backgroundImage
+     * @return string
+     */
+    protected function validateBackgroundImage($backgroundImage)
+    {
+        // check if file exists
+        if (!file_exists($backgroundImage)) {
+            $backgroundImageExploded = explode('/', $backgroundImage);
+            $imageFileName = count($backgroundImageExploded) > 1? $backgroundImageExploded[count($backgroundImageExploded)-1] : $backgroundImage;
+
+            throw new Exception('Invalid background image: ' . $imageFileName);
+        }
+
+        // check image type
+        $finfo = finfo_open(FILEINFO_MIME_TYPE); // return mime type ala mimetype extension
+        $imageType = finfo_file($finfo, $backgroundImage);
+        finfo_close($finfo);
+
+        if (!in_array ($imageType, $this->allowedBackgroundImageTypes)) {
+            throw new Exception('Invalid background image type! Allowed types are: ' . join(', ', $this->allowedBackgroundImageTypes));
+        }
+
+        return $imageType;
+    }
+
+    /**
+     * Create background image from type
+     *
+     * @param string $backgroundImage
+     * @param string $imageType
+     * @return resource
+     */
+    protected function createBackgroundImageFromType($backgroundImage, $imageType)
+    {
+        switch ($imageType) {
+            case 'image/jpeg':
+                $image = imagecreatefromjpeg($backgroundImage);
+                break;
+            case 'image/png':
+                $image = imagecreatefrompng($backgroundImage);
+                break;
+            case 'image/gif':
+                $image = imagecreatefromgif($backgroundImage);
+                break;
+
+            default:
+                throw new Exception('Not supported file type for background image!');
+                break;
+        }
+
+        return $image;
     }
 }
