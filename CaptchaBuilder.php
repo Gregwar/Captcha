@@ -36,7 +36,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     /**
      * @var array
      */
-    protected $backgroundImages = null;
+    protected $backgroundImages = array();
 
     /**
      * @var resource
@@ -372,7 +372,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
             $font = __DIR__ . '/Font/captcha'.$this->rand(0, 5).'.ttf';
         }
 
-        if (is_null($this->backgroundImages)) {
+        if (empty($this->backgroundImages)) {
             // if background images list is not set, use a color fill as a background
             $image   = imagecreatetruecolor($width, $height);
             if ($this->backgroundColor == null) {
@@ -427,7 +427,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
 
         // Distort the image
         if ($this->distortion) {
-            //$image = $this->distort($image, $width, $height, $bg);
+            $image = $this->distort($image, $width, $height, $bg);
         }
 
         // Post effects
