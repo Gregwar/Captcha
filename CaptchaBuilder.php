@@ -88,6 +88,13 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     protected $interpolation = true;
 
     /**
+     * Ignore all effects
+     *
+     * @var bool
+     */
+    protected $ignoreAllEffects = false;
+
+    /**
      * Allowed image types for the background images
      *
      * @var array
@@ -220,6 +227,19 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     public function setBackgroundColor($r, $g, $b)
     {
         $this->backgroundColor = array($r, $g, $b);
+
+        return $this;
+    }
+
+    /**
+     * Sets the ignoreAllEffects value
+     *
+     * @param bool $ignoreAllEffects
+     * @return CaptchaBuilder
+     */
+    public function setIgnoreAllEffects($ignoreAllEffects)
+    {
+        $this->ignoreAllEffects = $ignoreAllEffects;
 
         return $this;
     }
@@ -393,17 +413,19 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         }
 
         // Apply effects
-        $square = $width * $height;
-        $effects = $this->rand($square/3000, $square/2000);
+        if (!$this->ignoreAllEffects) {
+            $square = $width * $height;
+            $effects = $this->rand($square/3000, $square/2000);
 
-        // set the maximum number of lines to draw in front of the text
-        if ($this->maxBehindLines != null && $this->maxBehindLines > 0) {
-            $effects = min($this->maxBehindLines, $effects);
-        }
+            // set the maximum number of lines to draw in front of the text
+            if ($this->maxBehindLines != null && $this->maxBehindLines > 0) {
+                $effects = min($this->maxBehindLines, $effects);
+            }
 
-        if ($this->maxBehindLines !== 0) {
-            for ($e = 0; $e < $effects; $e++) {
-                $this->drawLine($image, $width, $height);
+            if ($this->maxBehindLines !== 0) {
+                for ($e = 0; $e < $effects; $e++) {
+                    $this->drawLine($image, $width, $height);
+                }
             }
         }
 
@@ -411,27 +433,31 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         $color = $this->writePhrase($image, $this->phrase, $font, $width, $height);
 
         // Apply effects
-        $square = $width * $height;
-        $effects = $this->rand($square/3000, $square/2000);
+        if (!$this->ignoreAllEffects) {
+            $square = $width * $height;
+            $effects = $this->rand($square/3000, $square/2000);
 
-        // set the maximum number of lines to draw in front of the text
-        if ($this->maxFrontLines != null && $this->maxFrontLines > 0) {
-            $effects = min($this->maxFrontLines, $effects);
-        }
+            // set the maximum number of lines to draw in front of the text
+            if ($this->maxFrontLines != null && $this->maxFrontLines > 0) {
+                $effects = min($this->maxFrontLines, $effects);
+            }
 
-        if ($this->maxFrontLines !== 0) {
-            for ($e = 0; $e < $effects; $e++) {
-                $this->drawLine($image, $width, $height, $color);
+            if ($this->maxFrontLines !== 0) {
+                for ($e = 0; $e < $effects; $e++) {
+                    $this->drawLine($image, $width, $height, $color);
+                }
             }
         }
 
         // Distort the image
-        if ($this->distortion) {
+        if ($this->distortion && !$this->ignoreAllEffects) {
             $image = $this->distort($image, $width, $height, $bg);
         }
 
         // Post effects
-        $this->postEffect($image);
+        if (!$this->ignoreAllEffects) {
+            $this->postEffect($image);
+        }
 
         $this->contents = $image;
 
