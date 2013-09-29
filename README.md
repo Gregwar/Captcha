@@ -49,6 +49,12 @@ header('Content-type: image/jpeg');
 $builder->output();
 ```
 
+Or inline it directly in the HTML page:
+
+```php
+<img src="<?php echo $builder->inline(); ?>" />
+```
+
 You'll be able to get the code and compare it with a user input :
 
 ```php

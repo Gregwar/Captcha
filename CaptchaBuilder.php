@@ -482,6 +482,14 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     }
 
     /**
+     * Gets the HTML inline base64
+     */
+    public function inline($quality = 90)
+    {
+        return 'data:image/jpeg;base64,' . base64_encode($this->get($quality));
+    }
+
+    /**
      * Outputs the image
      */
     public function output($quality = 90)
