@@ -287,7 +287,8 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         $col = imagecolorallocate($image, $textColor[0], $textColor[1], $textColor[1]);
 
         // Write the letters one by one, with random angle
-        for ($i=0; $i<strlen($phrase); $i++) {
+        $length = strlen($phrase);
+        for ($i=0; $i<$length; $i++) {
             $box = imagettfbbox($size, 0, $font, $phrase[$i]);
             $w = $box[2] - $box[0];
             $angle = $this->rand(-$this->maxAngle, $this->maxAngle);
