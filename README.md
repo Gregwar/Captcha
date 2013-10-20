@@ -21,7 +21,7 @@ With composer :
 Usage
 =====
 
-You can create a captcha with the `CapthcaBuilder` :
+You can create a captcha with the `CaptchaBuilder` :
 
 ```php
 <?php
