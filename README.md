@@ -65,6 +65,12 @@ You'll be able to get the code and compare it with a user input :
 $_SESSION['phrase'] = $builder->getPhrase();
 ```
 
+You can compare the phrase with user input:
+```php
+// Example: return true if the code is correct, false otherwise
+$builder->testPhrase($userInput);
+```
+
 API
 ===
 
@@ -81,6 +87,7 @@ You can use theses functions :
 * **output($quality = 80)**, directly outputs the jpeg code to a browser
 * **setBackgroundColor($r, $g, $b)**, sets the background color to force it (this will disable many effects and is not recommended)
 * **setInterpolation($interpolate)**, enable or disable the interpolation (enabled by default), disabling it will be quicker but the images will look uglier
+* **testPhrase($phrase)**, returns true if the given phrase is good
 
 Symfony 2 Bundle
 ================
