@@ -67,8 +67,12 @@ $_SESSION['phrase'] = $builder->getPhrase();
 
 You can compare the phrase with user input:
 ```php
-// Example: return true if the code is correct, false otherwise
-$builder->testPhrase($userInput);
+if($builder->testPhrase($userInput)) {
+    // instructions if user phrase is good
+}
+else {
+    // user phrase is wrong
+}
 ```
 
 API
