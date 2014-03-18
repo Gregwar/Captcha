@@ -331,7 +331,8 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         $col = imagecolorallocate($image, $textColor[0], $textColor[1], $textColor[1]);
 
         // Write the letters one by one, with random angle
-        for ($i=0; $i<strlen($phrase); $i++) {
+        $length = strlen($phrase);
+        for ($i=0; $i<$length; $i++) {
             $box = imagettfbbox($size, 0, $font, $phrase[$i]);
             $w = $box[2] - $box[0];
             $angle = $this->rand(-$this->maxAngle, $this->maxAngle);
@@ -539,6 +540,14 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         $this->output($quality);
 
         return ob_get_clean();
+    }
+
+    /**
+     * Gets the HTML inline base64
+     */
+    public function inline($quality = 90)
+    {
+        return 'data:image/jpeg;base64,' . base64_encode($this->get($quality));
     }
 
     /**

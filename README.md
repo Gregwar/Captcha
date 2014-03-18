@@ -21,7 +21,7 @@ With composer :
 Usage
 =====
 
-You can create a captcha with the `CapthcaBuilder` :
+You can create a captcha with the `CaptchaBuilder` :
 
 ```php
 <?php
@@ -49,6 +49,12 @@ header('Content-type: image/jpeg');
 $builder->output();
 ```
 
+Or inline it directly in the HTML page:
+
+```php
+<img src="<?php echo $builder->inline(); ?>" />
+```
+
 You'll be able to get the code and compare it with a user input :
 
 ```php
@@ -57,6 +63,16 @@ You'll be able to get the code and compare it with a user input :
 // Example: storing the phrase in the session to test for the user 
 // input later
 $_SESSION['phrase'] = $builder->getPhrase();
+```
+
+You can compare the phrase with user input:
+```php
+if($builder->testPhrase($userInput)) {
+    // instructions if user phrase is good
+}
+else {
+    // user phrase is wrong
+}
 ```
 
 API
@@ -77,6 +93,7 @@ You can use theses functions :
 * **setBackgroundImages(array($imagepath1, $imagePath2))**, Sets custom background images to be used as captcha background. It is recommended to disable image effects when passing custom images for background (ignore_all_effects). A random image is selected from the list passed, the full paths to the image files must be passed.
 * **setInterpolation($interpolate)**, enable or disable the interpolation (enabled by default), disabling it will be quicker but the images will look uglier
 * **setIgnoreAllEffects($ignoreAllEffects)**, disable all effects on the captcha image. Recommended to use when passing custom background images for the captcha.
+* **testPhrase($phrase)**, returns true if the given phrase is good
 
 Symfony 2 Bundle
 ================
