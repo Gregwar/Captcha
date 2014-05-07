@@ -328,7 +328,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         } else {
             $textColor = $this->textColor;
         }
-        $col = imagecolorallocate($image, $textColor[0], $textColor[1], $textColor[1]);
+        $col = imagecolorallocate($image, $textColor[0], $textColor[1], $textColor[2]);
 
         // Write the letters one by one, with random angle
         $length = strlen($phrase);
