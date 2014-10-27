@@ -372,7 +372,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     public function buildAgainstOCR($width = 150, $height = 40, $font = null, $fingerprint = null)
     {
         do {
-            $this->build();
+            $this->build($width, $height, $font, $fingerprint);
         } while ($this->isOCRReadable());
     }
 
