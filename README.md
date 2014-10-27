@@ -84,7 +84,7 @@ You can use theses functions :
 * **getPhrase()**, allow you to get the phrase contents
 * **setDistortion($distortion)**, enable or disable the distortion, call it before `build()`
 * **isOCRReadable()**, returns `true` if the OCR can be read using the `ocrad` software, you'll need to have shell_exec enabled, imagemagick and ocrad installed
-* **buildAgainstOCR()**, builds a code until it is not readable by `ocrad`
+* **buildAgainstOCR($width = 150, $height = 40, $font = null)**, builds a code until it is not readable by `ocrad`
 * **build($width = 150, $height = 40, $font = null)**, builds a code with the given $width, $height and $font. By default, a random font will be used from the library
 * **save($filename, $quality = 80)**, saves the captcha into a jpeg in the $filename, with the given quality
 * **get($quality = 80)**, returns the jpeg data
