@@ -94,6 +94,8 @@ You can use theses functions :
 * **setInterpolation($interpolate)**, enable or disable the interpolation (enabled by default), disabling it will be quicker but the images will look uglier
 * **setIgnoreAllEffects($ignoreAllEffects)**, disable all effects on the captcha image. Recommended to use when passing custom background images for the captcha.
 * **testPhrase($phrase)**, returns true if the given phrase is good
+* **setMaxBehindLines($lines)**, sets the maximum number of lines behind the code
+* **setMaxFrontLines($lines)**, sets the maximum number of lines on the front of the code
 
 Symfony 2 Bundle
 ================
