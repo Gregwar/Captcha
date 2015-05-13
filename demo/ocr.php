@@ -1,9 +1,9 @@
 <?php
 
-include('../CaptchaBuilderInterface.php');
-include('../PhraseBuilderInterface.php');
-include('../CaptchaBuilder.php');
-include('../PhraseBuilder.php');
+include(__DIR__.'/../CaptchaBuilderInterface.php');
+include(__DIR__.'/../PhraseBuilderInterface.php');
+include(__DIR__.'/../CaptchaBuilder.php');
+include(__DIR__.'/../PhraseBuilder.php');
 
 use Gregwar\Captcha\CaptchaBuilder;
 
@@ -25,7 +25,7 @@ for ($i=0; $i<$tests; $i++) {
     $captcha
         ->setDistortion(false)
         ->build()
-        ;
+    ;
 
     if ($captcha->isOCRReadable()) {
         $passed++;

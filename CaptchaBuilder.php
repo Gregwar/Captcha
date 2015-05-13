@@ -112,7 +112,9 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     /**
      * Enable/Disables the interpolation
      *
-     * @param $interpolate true to enable, false to disable
+     * @param $interpolate bool  True to enable, false to disable
+     *
+     * @return CaptchaBuilder
      */
     public function setInterpolation($interpolate = true)
     {
@@ -659,6 +661,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
      *
      * @param string $backgroundImage
      * @return string
+     * @throws Exception
      */
     protected function validateBackgroundImage($backgroundImage)
     {
@@ -688,6 +691,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
      * @param string $backgroundImage
      * @param string $imageType
      * @return resource
+     * @throws Exception
      */
     protected function createBackgroundImageFromType($backgroundImage, $imageType)
     {

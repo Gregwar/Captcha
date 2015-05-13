@@ -21,9 +21,8 @@
         "ext-gd": "*"
     },
     "autoload": {
-        "psr-0": {
-            "Gregwar\\Captcha": ""
+        "psr-4": {
+            "Gregwar\\Captcha\\": "/"
         }
-    },
-    "target-dir": "Gregwar/Captcha"
+    }
 }

@@ -3,13 +3,12 @@ Captcha
 
 ![Captchas examples](http://gregwar.com/captchas.png)
 
-
 Installation
 ============
 
 With composer :
 
-```
+``` json
 {
     ...
     "require": {
