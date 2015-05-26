@@ -12,7 +12,7 @@ With composer :
 {
     ...
     "require": {
-        "gregwar/captcha": "dev-master"
+        "gregwar/captcha": "1.*"
     }
 }
 ```
