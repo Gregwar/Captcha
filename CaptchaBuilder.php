@@ -317,8 +317,13 @@ class CaptchaBuilder implements CaptchaBuilderInterface
      */
     protected function writePhrase($image, $phrase, $font, $width, $height)
     {
+        $length = strlen($phrase);
+        if ($length === 0) {
+            return imagecolorallocate($image, 0, 0, 0);
+        }
+
         // Gets the text size and start position
-        $size = $width / strlen($phrase) - $this->rand(0, 3) - 1;
+        $size = $width / $length - $this->rand(0, 3) - 1;
         $box = imagettfbbox($size, 0, $font, $phrase);
         $textWidth = $box[2] - $box[0];
         $textHeight = $box[1] - $box[7];
@@ -333,7 +338,6 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         $col = imagecolorallocate($image, $textColor[0], $textColor[1], $textColor[2]);
 
         // Write the letters one by one, with random angle
-        $length = strlen($phrase);
         for ($i=0; $i<$length; $i++) {
             $box = imagettfbbox($size, 0, $font, $phrase[$i]);
             $w = $box[2] - $box[0];
