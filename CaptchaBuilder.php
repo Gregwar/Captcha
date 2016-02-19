@@ -200,9 +200,9 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     /**
      * Returns true if the given phrase is good
      */
-    public function testPhrase($phrase)
+    public function testPhrase($phrase, $userSessionPhrase = null)
     {
-        return ($this->builder->niceize($phrase) == $this->builder->niceize($this->getPhrase()));
+        return ($this->builder->niceize($phrase) == $this->builder->niceize($userSessionPhrase ?: $this->getPhrase()));
     }
 
     /**
