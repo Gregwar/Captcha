@@ -75,7 +75,7 @@ else {
 ```
 You can compare user session phrase with user input:
 ```php
-if($builder->testPhrase($userInput, $_SESSION['phrase'])) {
+if(isset($_SESSION['phrase']) && $builder->testPhrase($userInput, $_SESSION['phrase'])) {
     // instructions if user phrase is good
 }
 else {
