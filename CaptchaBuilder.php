@@ -49,6 +49,11 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     protected $phrase = null;
 
     /**
+     * @var length of phrase
+     */
+    protected $pharseLen = 5;
+
+    /**
      * @var PhraseBuilderInterface
      */
     protected $builder;
@@ -136,11 +141,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
             $this->builder = $builder;
         }
 
-        if ($phrase === null) {
-            $phrase = $this->builder->build();
-        }
-
-        $this->phrase = $phrase;
+  
     }
 
     /**
@@ -149,6 +150,11 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     public function setPhrase($phrase)
     {
         $this->phrase = (string) $phrase;
+    }
+
+    public function setPhraseLen($length)
+    {
+        $this->phraseLen = $length;
     }
 
     /**
@@ -387,6 +393,10 @@ class CaptchaBuilder implements CaptchaBuilderInterface
      */
     public function build($width = 150, $height = 40, $font = null, $fingerprint = null)
     {
+        if ($this->phrase === null) {
+            $this->phrase = $this->builder->build($this->phraseLen);
+        }
+
         if (null !== $fingerprint) {
             $this->fingerprint = $fingerprint;
             $this->useFingerprint = true;
