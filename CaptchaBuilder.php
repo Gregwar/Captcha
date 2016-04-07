@@ -51,7 +51,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     /**
      * @var length of phrase
      */
-    protected $pharseLen = 5;
+    protected $phraseLen = 5;
 
     /**
      * @var PhraseBuilderInterface
