@@ -319,7 +319,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     {
         $length = strlen($phrase);
         if ($length === 0) {
-            return imagecolorallocate($image, 0, 0, 0);
+            return \imagecolorallocate($image, 0, 0, 0);
         }
 
         // Gets the text size and start position
