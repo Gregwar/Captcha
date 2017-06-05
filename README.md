@@ -74,6 +74,15 @@ else {
     // user phrase is wrong
 }
 ```
+You can compare user session phrase with user input:
+```php
+if(isset($_SESSION['phrase']) && $builder->testPhrase($userInput, $_SESSION['phrase'])) {
+    // instructions if user phrase is good
+}
+else {
+    // user phrase is wrong
+}
+```
 
 API
 ===
