@@ -97,7 +97,8 @@ You can use theses functions :
 * **setMaxBehindLines($lines)**, sets the maximum number of lines behind the code
 * **setMaxFrontLines($lines)**, sets the maximum number of lines on the front of the code
 
-If you want to change the number of character, you can call the phrase builder yourself:
+If you want to change the number of character, you can call the phrase builder directly using
+extra parameters:
 
 ```php
 use Gregwar\Captcha\CaptchaBuilder;
