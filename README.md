@@ -97,6 +97,22 @@ You can use theses functions :
 * **setMaxBehindLines($lines)**, sets the maximum number of lines behind the code
 * **setMaxFrontLines($lines)**, sets the maximum number of lines on the front of the code
 
+If you want to change the number of character, you can call the phrase builder yourself:
+
+```php
+use Gregwar\Captcha\CaptchaBuilder;
+use Gregwar\Captcha\PhraseBuilder;
+
+// Building a phrase of 3 characters
+$phrase = PhraseBuilder::build(3);
+
+// Building a phrase of 5 characters, only digits
+$phrase = PhraseBuilder::build(5, '0123456789');
+
+// Pass it as first argument of CaptchaBuilder
+$captcha = new CaptchaBuilder($phrase);
+```
+
 Symfony 2 Bundle
 ================
 
