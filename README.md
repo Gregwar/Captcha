@@ -104,17 +104,25 @@ extra parameters:
 use Gregwar\Captcha\CaptchaBuilder;
 use Gregwar\Captcha\PhraseBuilder;
 
-// Building a phrase of 3 characters
-$phrase = PhraseBuilder::build(3);
+// Will build phrases of 3 characters
+$phraseBuilder = new PhraseBuilder(4)
 
-// Building a phrase of 5 characters, only digits
-$phrase = PhraseBuilder::build(5, '0123456789');
+// Will build phrases of 5 characters, only digits
+$phraseBuilder = new PhraseBuilder(5, '0123456789');
 
-// Pass it as first argument of CaptchaBuilder
-$captcha = new CaptchaBuilder($phrase);
+// Pass it as first argument of CaptchaBuilder, passing it the phrase
+// builder
+$captcha = new CaptchaBuilder(null, $phraseBuilder);
 ```
 
-Symfony 2 Bundle
+You can also pass directly the wanted phrase to the builder:
+
+```php
+// Building a Captcha with the "hello" phrase
+$captcha = new CaptchaBuilder('hello');
+```
+
+Symfony Bundle
 ================
 
 You can have a look at the following repository to enjoy the Symfony 2 bundle packaging this captcha generator :

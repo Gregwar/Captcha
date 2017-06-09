@@ -10,14 +10,23 @@ namespace Gregwar\Captcha;
 class PhraseBuilder implements PhraseBuilderInterface
 {
     /**
+     * Constructs a PhraseBuilder with given parameters
+     */
+    public function __construct($length = 5, $charset = 'abcdefghijklmnpqrstuvwxyz123456789')
+    {
+        $this->length = $length;
+        $this->charset = $charset;
+    }
+
+    /**
      * Generates  random phrase of given length with given charset
      */
-    public function build($length = 5, $charset = 'abcdefghijklmnpqrstuvwxyz123456789')
+    public function build()
     {
         $phrase = '';
-        $chars = str_split($charset);
+        $chars = str_split($this->charset);
 
-        for ($i = 0; $i < $length; $i++) {
+        for ($i = 0; $i < $this->length; $i++) {
             $phrase .= $chars[array_rand($chars)];
         }
 
