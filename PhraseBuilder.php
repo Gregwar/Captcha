@@ -21,8 +21,15 @@ class PhraseBuilder implements PhraseBuilderInterface
     /**
      * Generates  random phrase of given length with given charset
      */
-    public function build()
+    public function build($length = null, $charset = null)
     {
+        if ($length !== null) {
+            $this->length = $length;
+        }
+        if ($charset !== null) {
+            $this->charset = $charset;
+        }
+
         $phrase = '';
         $chars = str_split($this->charset);
 
