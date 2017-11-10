@@ -317,7 +317,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
      */
     protected function writePhrase($image, $phrase, $font, $width, $height)
     {
-        $length = strlen($phrase);
+        $length = mb_strlen($phrase);
         if ($length === 0) {
             return \imagecolorallocate($image, 0, 0, 0);
         }
@@ -339,11 +339,12 @@ class CaptchaBuilder implements CaptchaBuilderInterface
 
         // Write the letters one by one, with random angle
         for ($i=0; $i<$length; $i++) {
-            $box = \imagettfbbox($size, 0, $font, $phrase[$i]);
+            $symbol = mb_substr($phrase, $i, 1);
+            $box = \imagettfbbox($size, 0, $font, $symbol);
             $w = $box[2] - $box[0];
             $angle = $this->rand(-$this->maxAngle, $this->maxAngle);
             $offset = $this->rand(-$this->maxOffset, $this->maxOffset);
-            \imagettftext($image, $size, $angle, $x, $y + $offset, $col, $font, $phrase[$i]);
+            \imagettftext($image, $size, $angle, $x, $y + $offset, $col, $font, $symbol);
             $x += $w;
         }
 
