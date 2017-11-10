@@ -315,8 +315,11 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     /**
      * Writes the phrase on the image
      */
-    protected function writePhrase($image, $phrase, $font, $width, $height)
+    protected function writePhrase($image, $phrase, $fonts, $width, $height)
     {
+        if (!is_array($fonts)) {
+            $fonts = array($fonts);
+        }
         $length = strlen($phrase);
         if ($length === 0) {
             return \imagecolorallocate($image, 0, 0, 0);
@@ -324,9 +327,14 @@ class CaptchaBuilder implements CaptchaBuilderInterface
 
         // Gets the text size and start position
         $size = $width / $length - $this->rand(0, 3) - 1;
-        $box = \imagettfbbox($size, 0, $font, $phrase);
-        $textWidth = $box[2] - $box[0];
-        $textHeight = $box[1] - $box[7];
+        $textWidth = 0;
+        $textHeight = 0;
+        foreach ($fonts as $font) {
+            $box = \imagettfbbox($size, 0, $font, $phrase);
+            $textWidth = max($textWidth, $box[2] - $box[0]);
+            $textHeight = max($textHeight, $box[1] - $box[7]);
+        }
+
         $x = ($width - $textWidth) / 2;
         $y = ($height - $textHeight) / 2 + $size;
 
@@ -339,6 +347,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
 
         // Write the letters one by one, with random angle
         for ($i=0; $i<$length; $i++) {
+            $font = $fonts[array_rand($fonts)];
             $box = \imagettfbbox($size, 0, $font, $phrase[$i]);
             $w = $box[2] - $box[0];
             $angle = $this->rand(-$this->maxAngle, $this->maxAngle);
@@ -375,17 +384,17 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     /**
      * Builds while the code is readable against an OCR
      */
-    public function buildAgainstOCR($width = 150, $height = 40, $font = null, $fingerprint = null)
+    public function buildAgainstOCR($width = 150, $height = 40, $fonts = null, $fingerprint = null)
     {
         do {
-            $this->build($width, $height, $font, $fingerprint);
+            $this->build($width, $height, $fonts, $fingerprint);
         } while ($this->isOCRReadable());
     }
 
     /**
      * Generate the image
      */
-    public function build($width = 150, $height = 40, $font = null, $fingerprint = null)
+    public function build($width = 150, $height = 40, $fonts = null, $fingerprint = null)
     {
         if (null !== $fingerprint) {
             $this->fingerprint = $fingerprint;
@@ -395,8 +404,17 @@ class CaptchaBuilder implements CaptchaBuilderInterface
             $this->useFingerprint = false;
         }
 
-        if ($font === null) {
-            $font = __DIR__ . '/Font/captcha'.$this->rand(0, 5).'.ttf';
+        if ($fonts === null) {
+            $fonts = array(
+                __DIR__ . '/Font/captcha0.ttf',
+                __DIR__ . '/Font/captcha1.ttf',
+                __DIR__ . '/Font/captcha2.ttf',
+                __DIR__ . '/Font/captcha3.ttf',
+                __DIR__ . '/Font/captcha4.ttf',
+                __DIR__ . '/Font/captcha5.ttf',
+            );
+        } elseif (!is_array($fonts))  {
+            $fonts = array($fonts);
         }
 
         if (empty($this->backgroundImages)) {
@@ -437,7 +455,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         }
 
         // Write CAPTCHA text
-        $color = $this->writePhrase($image, $this->phrase, $font, $width, $height);
+        $color = $this->writePhrase($image, $this->phrase, $fonts, $width, $height);
 
         // Apply effects
         if (!$this->ignoreAllEffects) {
