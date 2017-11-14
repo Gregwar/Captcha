@@ -8,7 +8,6 @@ include(__DIR__.'/../PhraseBuilder.php');
 use Gregwar\Captcha\CaptchaBuilder;
 
 $captcha = new CaptchaBuilder;
-$captcha
-    ->build()
-    ->save('out.jpg')
+$captcha->setPhraseLen(3);
+$captcha->build()->save('out.jpg')
 ;
