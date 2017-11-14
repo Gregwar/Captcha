@@ -128,6 +128,12 @@ Symfony Bundle
 You can have a look at the following repository to enjoy the Symfony 2 bundle packaging this captcha generator :
 https://github.com/Gregwar/CaptchaBundle
 
+Yii2 Extension
+===============
+
+You can use the following extension for integrating with Yii2 Framework :
+https://github.com/juliardi/yii2-captcha
+
 License
 =======
 
