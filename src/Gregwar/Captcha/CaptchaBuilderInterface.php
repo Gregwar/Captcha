@@ -27,4 +27,3 @@ interface CaptchaBuilderInterface
      */
     public function output($quality);
 }
-

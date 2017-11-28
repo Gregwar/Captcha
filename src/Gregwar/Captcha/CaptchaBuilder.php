@@ -683,7 +683,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         $imageType = finfo_file($finfo, $backgroundImage);
         finfo_close($finfo);
 
-        if (!in_array ($imageType, $this->allowedBackgroundImageTypes)) {
+        if (!in_array($imageType, $this->allowedBackgroundImageTypes)) {
             throw new Exception('Invalid background image type! Allowed types are: ' . join(', ', $this->allowedBackgroundImageTypes));
         }
 
