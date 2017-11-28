@@ -10,6 +10,16 @@ namespace Gregwar\Captcha;
 class PhraseBuilder implements PhraseBuilderInterface
 {
     /**
+     * @var int
+     */
+    public $length;
+
+    /**
+     * @var string
+     */
+
+    public $charset;
+    /**
      * Constructs a PhraseBuilder with given parameters
      */
     public function __construct($length = 5, $charset = 'abcdefghijklmnpqrstuvwxyz123456789')
