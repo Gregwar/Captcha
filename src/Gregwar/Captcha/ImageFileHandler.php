@@ -86,7 +86,7 @@ class ImageFileHandler
         $finder->in($this->webPath . '/' . $this->imageFolder)
             ->date($criteria);
 
-        foreach($finder->files() as $file) {
+        foreach ($finder->files() as $file) {
             unlink($file->getPathname());
         }
 
@@ -103,4 +103,3 @@ class ImageFileHandler
         }
     }
 }
-
