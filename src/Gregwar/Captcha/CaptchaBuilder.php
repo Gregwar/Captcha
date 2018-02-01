@@ -26,7 +26,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     /**
      * @var array
      */
-    protected $textColor = null;
+    protected $textColor = array();
 
     /**
      * @var array
