@@ -270,13 +270,13 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     protected function drawLine($image, $width, $height, $tcol = null)
     {
         if ($this->lineColor === null) {
-            $red = $this->lineColor[0];
-            $green = $this->lineColor[1];
-            $blue = $this->lineColor[2];
-        } else {
             $red = $this->rand(100, 255);
             $green = $this->rand(100, 255);
             $blue = $this->rand(100, 255);
+        } else {
+            $red = $this->lineColor[0];
+            $green = $this->lineColor[1];
+            $blue = $this->lineColor[2];
         }
 
         if ($tcol === null) {
