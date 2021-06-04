@@ -105,7 +105,7 @@ use Gregwar\Captcha\CaptchaBuilder;
 use Gregwar\Captcha\PhraseBuilder;
 
 // Will build phrases of 3 characters
-$phraseBuilder = new PhraseBuilder(4)
+$phraseBuilder = new PhraseBuilder(4);
 
 // Will build phrases of 5 characters, only digits
 $phraseBuilder = new PhraseBuilder(5, '0123456789');
