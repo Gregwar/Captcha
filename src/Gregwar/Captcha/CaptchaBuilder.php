@@ -348,6 +348,11 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         $x = ($width - $textWidth) / 2;
         $y = ($height - $textHeight) / 2 + $size;
 
+        // Define a empty array when textColor is null
+        if(is_null($this->textColor)){
+            $this->textColor = array();
+        }
+
         if (!$this->textColor) {
             $textColor = array($this->rand(0, 150), $this->rand(0, 150), $this->rand(0, 150));
         } else {
