@@ -125,7 +125,7 @@ $captcha = new CaptchaBuilder('hello');
 Complete example
 ================
 
-If you want to see an example you can have a look at he ``demo/form.php``, which uses ``demo/session.php`` to
+If you want to see an example you can have a look at the ``demo/form.php``, which uses ``demo/session.php`` to
 render a captcha and check it after the submission
 
 Symfony Bundle
