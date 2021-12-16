@@ -362,7 +362,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
             $w = $box[2] - $box[0];
             $angle = $this->rand(-$this->maxAngle, $this->maxAngle);
             $offset = $this->rand(-$this->maxOffset, $this->maxOffset);
-            \imagettftext($image, $size, $angle, $x, $y + $offset, $col, $font, $symbol);
+            \imagettftext($image, $size, $angle, $x, (int)$y + $offset, $col, $font, $symbol);
             $x += $w;
         }
 
