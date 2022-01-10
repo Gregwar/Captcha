@@ -140,7 +140,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         } else {
             $this->builder = $builder;
         }
-        
+
         $this->phrase = is_string($phrase) ? $phrase : $this->builder->build($phrase);
     }
 
@@ -731,7 +731,6 @@ class CaptchaBuilder implements CaptchaBuilderInterface
 
             default:
                 throw new Exception('Not supported file type for background image!');
-                break;
         }
 
         return $image;
