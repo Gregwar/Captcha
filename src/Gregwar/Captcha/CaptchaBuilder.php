@@ -362,7 +362,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
             $w = $box[2] - $box[0];
             $angle = $this->rand(-$this->maxAngle, $this->maxAngle);
             $offset = $this->rand(-$this->maxOffset, $this->maxOffset);
-            \imagettftext($image, $size, $angle, $x, $y + $offset, $col, $font, $symbol);
+            \imagettftext($image, (float)$size, (float)$angle, (int)$x, (int)($y + $offset), $col, $font, $symbol);
             $x += $w;
         }
 
@@ -427,7 +427,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
                 $color = $this->backgroundColor;
                 $bg = imagecolorallocate($image, $color[0], $color[1], $color[2]);
             }
-            $this->background = $bg;
+            $this->backgroundColor = $bg;
             imagefill($image, 0, 0, $bg);
         } else {
             // use a random background image
