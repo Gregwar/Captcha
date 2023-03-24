@@ -427,7 +427,6 @@ class CaptchaBuilder implements CaptchaBuilderInterface
                 $color = $this->backgroundColor;
                 $bg = imagecolorallocate($image, $color[0], $color[1], $color[2]);
             }
-            $this->background = $bg;
             imagefill($image, 0, 0, $bg);
         } else {
             // use a random background image
