@@ -362,7 +362,10 @@ class CaptchaBuilder implements CaptchaBuilderInterface
             $w = $box[2] - $box[0];
             $angle = $this->rand(-$this->maxAngle, $this->maxAngle);
             $offset = $this->rand(-$this->maxOffset, $this->maxOffset);
-            \imagettftext($image, $size, $angle, $x, $y + $offset, $col, $font, $symbol);
+            
+            // fix for error Implicit conversion from float 37.5 to int loses precision
+            // add (int) $x, (int) $y
+            \imagettftext($image, $size, $angle, (int) $x, (int) $y + $offset, $col, $font, $symbol);
             $x += $w;
         }
 
