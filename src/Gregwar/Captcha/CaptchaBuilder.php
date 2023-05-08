@@ -140,7 +140,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         } else {
             $this->builder = $builder;
         }
-        
+
         $this->phrase = is_string($phrase) ? $phrase : $this->builder->build($phrase);
     }
 
@@ -427,7 +427,6 @@ class CaptchaBuilder implements CaptchaBuilderInterface
                 $color = $this->backgroundColor;
                 $bg = imagecolorallocate($image, $color[0], $color[1], $color[2]);
             }
-            $this->background = $bg;
             imagefill($image, 0, 0, $bg);
         } else {
             // use a random background image
@@ -605,7 +604,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
             $value = current($this->fingerprint);
             next($this->fingerprint);
         } else {
-            $value = mt_rand($min, $max);
+            $value = mt_rand((int)$min, (int)$max);
             $this->fingerprint[] = $value;
         }
 
