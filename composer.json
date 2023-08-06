@@ -1,5 +1,5 @@
 {
-    "name": "gregwar/captcha",
+    "name": "webrium/captcha",
     "type": "library",
     "description": "Captcha generator",
     "keywords": ["captcha", "spam", "bot"],
