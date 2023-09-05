@@ -49,6 +49,11 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     protected $contents = null;
 
     /**
+     * @var array
+     */
+    protected $contentLetters = [];
+
+    /**
      * @var string
      */
     protected $phrase = null;
@@ -406,85 +411,95 @@ class CaptchaBuilder implements CaptchaBuilderInterface
      */
     public function build($width = 150, $height = 40, $font = null, $fingerprint = null)
     {
-        if (null !== $fingerprint) {
-            $this->fingerprint = $fingerprint;
-            $this->useFingerprint = true;
-        } else {
-            $this->fingerprint = array();
-            $this->useFingerprint = false;
-        }
+        $letters = strlen($this->phrase);
+        $width = $width/$letters;
 
-        if ($font === null) {
-            $font = __DIR__ . '/Font/captcha'.$this->rand(0, 5).'.ttf';
-        }
-
-        if (empty($this->backgroundImages)) {
-            // if background images list is not set, use a color fill as a background
-            $image   = imagecreatetruecolor($width, $height);
-            if ($this->backgroundColor == null) {
-                $bg = imagecolorallocate($image, $this->rand(200, 255), $this->rand(200, 255), $this->rand(200, 255));
+        for ($i = 0; $i < $letters; $i++) {
+            if (null !== $fingerprint) {
+                $this->fingerprint = $fingerprint;
+                $this->useFingerprint = true;
             } else {
-                $color = $this->backgroundColor;
-                $bg = imagecolorallocate($image, $color[0], $color[1], $color[2]);
-            }
-            imagefill($image, 0, 0, $bg);
-        } else {
-            // use a random background image
-            $randomBackgroundImage = $this->backgroundImages[rand(0, count($this->backgroundImages)-1)];
-
-            $imageType = $this->validateBackgroundImage($randomBackgroundImage);
-
-            $image = $this->createBackgroundImageFromType($randomBackgroundImage, $imageType);
-        }
-
-        // Apply effects
-        if (!$this->ignoreAllEffects) {
-            $square = $width * $height;
-            $effects = $this->rand($square/3000, $square/2000);
-
-            // set the maximum number of lines to draw in front of the text
-            if ($this->maxBehindLines != null && $this->maxBehindLines > 0) {
-                $effects = min($this->maxBehindLines, $effects);
+                $this->fingerprint = array();
+                $this->useFingerprint = false;
             }
 
-            if ($this->maxBehindLines !== 0) {
-                for ($e = 0; $e < $effects; $e++) {
-                    $this->drawLine($image, $width, $height);
+            if ($font === null) {
+                $font = __DIR__ . '/Font/captcha'.$this->rand(0, 5).'.ttf';
+            }
+
+            if (empty($this->backgroundImages)) {
+                // if background images list is not set, use a color fill as a background
+                $image   = imagecreatetruecolor($width, $height);
+                if ($this->backgroundColor == null) {
+                    $bg = imagecolorallocate($image, $this->rand(200, 255), $this->rand(200, 255), $this->rand(200, 255));
+                } else {
+                    $color = $this->backgroundColor;
+                    $bg = imagecolorallocate($image, $color[0], $color[1], $color[2]);
+                }
+                imagefill($image, 0, 0, $bg);
+            } else {
+                // use a random background image
+                $randomBackgroundImage = $this->backgroundImages[rand(0, count($this->backgroundImages)-1)];
+
+                $imageType = $this->validateBackgroundImage($randomBackgroundImage);
+
+                $image = $this->createBackgroundImageFromType($randomBackgroundImage, $imageType);
+            }
+
+            // Apply effects
+            if (!$this->ignoreAllEffects) {
+                $square = $width * $height;
+                $effects = $this->rand($square/3000, $square/2000);
+
+                // set the maximum number of lines to draw in front of the text
+                if ($this->maxBehindLines != null && $this->maxBehindLines > 0) {
+                    $effects = min($this->maxBehindLines, $effects);
+                }
+
+                if ($this->maxBehindLines !== 0) {
+                    for ($e = 0; $e < $effects; $e++) {
+                        $this->drawLine($image, $width, $height);
+                    }
                 }
             }
-        }
 
-        // Write CAPTCHA text
-        $color = $this->writePhrase($image, $this->phrase, $font, $width, $height);
+            // Write CAPTCHA text
+            $color = $this->writePhrase($image, substr($this->phrase, $i,1), $font, $width, $height);
 
-        // Apply effects
-        if (!$this->ignoreAllEffects) {
-            $square = $width * $height;
-            $effects = $this->rand($square/3000, $square/2000);
+            // Apply effects
+            if (!$this->ignoreAllEffects) {
+                $square = $width * $height;
+                $effects = $this->rand($square/3000, $square/2000);
 
-            // set the maximum number of lines to draw in front of the text
-            if ($this->maxFrontLines != null && $this->maxFrontLines > 0) {
-                $effects = min($this->maxFrontLines, $effects);
-            }
+                // set the maximum number of lines to draw in front of the text
+                if ($this->maxFrontLines != null && $this->maxFrontLines > 0) {
+                    $effects = min($this->maxFrontLines, $effects);
+                }
 
-            if ($this->maxFrontLines !== 0) {
-                for ($e = 0; $e < $effects; $e++) {
-                    $this->drawLine($image, $width, $height, $color);
+                if ($this->maxFrontLines !== 0) {
+                    for ($e = 0; $e < $effects; $e++) {
+                        $this->drawLine($image, $width, $height, $color);
+                    }
                 }
             }
+
+            // Distort the image
+            if ($this->distortion && !$this->ignoreAllEffects) {
+                $image = $this->distort($image, $width, $height, $bg);
+            }
+
+            // Post effects
+            if (!$this->ignoreAllEffects) {
+                $this->postEffect($image);
+            }
+
+            $this->contentLetters[] = $image;
+
         }
 
-        // Distort the image
-        if ($this->distortion && !$this->ignoreAllEffects) {
-            $image = $this->distort($image, $width, $height, $bg);
-        }
-
-        // Post effects
-        if (!$this->ignoreAllEffects) {
-            $this->postEffect($image);
-        }
-
-        $this->contents = $image;
+        //dd($this->contentLetters);
+        $this->contents = $this->contentLetters[0];
+//        dd($this);
 
         return $this;
     }
@@ -552,7 +567,8 @@ class CaptchaBuilder implements CaptchaBuilderInterface
      */
     public function getGd()
     {
-        return $this->contents;
+//        return $this->contents;
+        return $this->contentLetters;
     }
 
     /**
