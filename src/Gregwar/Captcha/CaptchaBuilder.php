@@ -730,7 +730,6 @@ class CaptchaBuilder implements CaptchaBuilderInterface
 
             default:
                 throw new Exception('Not supported file type for background image!');
-                break;
         }
 
         return $image;
