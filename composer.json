@@ -2,18 +2,26 @@
     "name": "gregwar/captcha",
     "type": "library",
     "description": "Captcha generator",
-    "keywords": ["captcha", "spam", "bot"],
+    "keywords": ["captcha", "spam", "bot", "split", "multiple"],
     "homepage": "https://github.com/Gregwar/Captcha",
     "license": "MIT",
     "authors": [
         {
             "name": "Grégoire Passault",
             "email": "g.passault@gmail.com",
-            "homepage": "http://www.gregwar.com/"
+            "homepage": "http://www.gregwar.com/",
+            "role": "Developer"
         },
         {
             "name": "Jeremy Livingston",
-            "email": "jeremy.j.livingston@gmail.com"
+            "email": "jeremy.j.livingston@gmail.com",
+            "role": "Developer"
+        },
+        {
+            "name": "Petronel Malutan",
+            "email": "malutanpetronel@gmail.com",
+            "homepage": "https://www.webnou.ro/",
+            "role": "Developer"
         }
     ],
     "require": {
