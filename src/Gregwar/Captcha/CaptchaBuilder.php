@@ -40,9 +40,16 @@ class CaptchaBuilder implements CaptchaBuilderInterface
 
 
     /**
-     * @var int
+     * @var int  0 to 127, 127 is completely transparent;
      */
-    protected $alpha = 0;
+    protected $bgAlpha = 0;
+
+
+    /**
+     * @var string
+     */
+
+    protected $imageType = "jpeg";
 
     /**
      * @var array
@@ -233,13 +240,49 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     /**
      * Sets the background color to use
      */
-    public function setBackgroundColor($r, $g, $b, $alpha)
+    public function setBackgroundColor($r, $g, $b, $alpha = 0)
     {
         $this->backgroundColor = array($r, $g, $b);
-        $this->alpha = $alpha;
+        $this->setBgAlpha($alpha);
         return $this;
     }
 
+    public function setBgAlpha($alpha)
+    {
+        $this->bgAlpha = $alpha;
+        // if bgAlpha is not 0, and type is jpeg, set png as default output type; only png is supported transparent background
+        if ($this->bgAlpha > 0) {
+            $this->setImageType('png');
+        }
+        return $this;
+    }
+
+    public function getBgAlpha()
+    {
+        return $this->bgAlpha;
+    }
+
+    public function setImageType($imageType)
+    {
+
+        $imageType = strtolower($imageType ?: $this->imageType);
+        if (!in_array($this->imageType, array('png', 'jpeg', 'gif'))) {
+            return;
+        }
+
+        $this->imageType = $imageType;
+
+        return $this;
+    }
+
+    public function getImageType()
+    {
+        return strtolower($this->imageType);
+    }
+
+    /**
+     * Sets the line color to use  
+     */
     public function setLineColor($r, $g, $b)
     {
         $this->lineColor = array($r, $g, $b);
@@ -428,10 +471,10 @@ class CaptchaBuilder implements CaptchaBuilderInterface
             // if background images list is not set, use a color fill as a background
             $image   = imagecreatetruecolor($width, $height);
             if ($this->backgroundColor == null) {
-                $bg = imagecolorallocatealpha($image, $this->rand(200, 255), $this->rand(200, 255), $this->rand(200, 255), $this->alpha);
+                $bg = imagecolorallocatealpha($image, $this->rand(200, 255), $this->rand(200, 255), $this->rand(200, 255), $this->bgAlpha);
             } else {
                 $color = $this->backgroundColor;
-                $bg = imagecolorallocatealpha($image, $color[0], $color[1], $color[2], $this->alpha);
+                $bg = imagecolorallocatealpha($image, $color[0], $color[1], $color[2], $this->bgAlpha);
             }
             imagefill($image, 0, 0, $bg);
             // 设置PNG图像的保存选项，以确保透明度被保存  
@@ -483,10 +526,10 @@ class CaptchaBuilder implements CaptchaBuilderInterface
             }
         }
 
-        // Distort the image
-        if ($this->distortion && !$this->ignoreAllEffects) {
-            $image = $this->distort($image, $width, $height, $bg);
-        }
+        // // Distort the image
+        // if ($this->distortion && !$this->ignoreAllEffects) {
+        //     $image = $this->distort($image, $width, $height, $bg);
+        // }
 
         // Post effects
         if (!$this->ignoreAllEffects) {
@@ -551,11 +594,22 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     }
 
     /**
-     * Saves the Captcha to a jpeg file
+     * Saves the Captcha to file
      */
     public function save($filename, $quality = 90)
     {
-        imagejpeg($this->contents, $filename, $quality);
+        $imageType = $this->getImageType();
+        switch ($imageType) {
+            case "png":
+                imagepng($this->contents, $filename, $quality / 10); // quality 0-9
+                break;
+            case "gif":
+                imagegif($this->contents, $filename);
+                break;
+            default:
+                imagejpeg($this->contents, $filename, $quality); // quality 0-100
+                break;
+        }
     }
 
     /**
@@ -581,7 +635,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
      */
     public function inline($quality = 90)
     {
-        return 'data:image/png;base64,' . base64_encode($this->get($quality));
+        return sprintf('data:image/%s;base64,%s', $this->getImageType(), base64_encode($this->get($quality)));
     }
 
     /**
@@ -589,10 +643,17 @@ class CaptchaBuilder implements CaptchaBuilderInterface
      */
     public function output($quality = 90)
     {
-        if ($this->alpha > 0) {
-            imagepng($this->contents, null, $quality / 10);
-        } else {
-            imagejpeg($this->contents, null, $quality);
+        $imageType = $this->getImageType();
+        switch ($imageType) {
+            case "png":
+                imagepng($this->contents, null, $quality / 10); // quality 0-9
+                break;
+            case "gif":
+                imagegif($this->contents);
+                break;
+            default:
+                imagejpeg($this->contents, null, $quality); // quality 0-100
+                break;
         }
     }
 
