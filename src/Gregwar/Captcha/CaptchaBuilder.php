@@ -38,6 +38,12 @@ class CaptchaBuilder implements CaptchaBuilderInterface
      */
     protected $backgroundColor = null;
 
+
+    /**
+     * @var int
+     */
+    protected $alpha = 0;
+
     /**
      * @var array
      */
@@ -227,10 +233,10 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     /**
      * Sets the background color to use
      */
-    public function setBackgroundColor($r, $g, $b)
+    public function setBackgroundColor($r, $g, $b, $alpha)
     {
         $this->backgroundColor = array($r, $g, $b);
-
+        $this->alpha = $alpha;
         return $this;
     }
 
@@ -284,15 +290,15 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         }
 
         if ($this->rand(0, 1)) { // Horizontal
-            $Xa   = $this->rand(0, $width/2);
+            $Xa   = $this->rand(0, $width / 2);
             $Ya   = $this->rand(0, $height);
-            $Xb   = $this->rand($width/2, $width);
+            $Xb   = $this->rand($width / 2, $width);
             $Yb   = $this->rand(0, $height);
         } else { // Vertical
             $Xa   = $this->rand(0, $width);
-            $Ya   = $this->rand(0, $height/2);
+            $Ya   = $this->rand(0, $height / 2);
             $Xb   = $this->rand(0, $width);
-            $Yb   = $this->rand($height/2, $height);
+            $Yb   = $this->rand($height / 2, $height);
         }
         imagesetthickness($image, $this->rand(1, 3));
         imageline($image, $Xa, $Ya, $Xb, $Yb, $tcol);
@@ -356,7 +362,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         $col = \imagecolorallocate($image, $textColor[0], $textColor[1], $textColor[2]);
 
         // Write the letters one by one, with random angle
-        for ($i=0; $i<$length; $i++) {
+        for ($i = 0; $i < $length; $i++) {
             $symbol = mb_substr($phrase, $i, 1);
             $box = \imagettfbbox($size, 0, $font, $symbol);
             $w = $box[2] - $box[0];
@@ -415,22 +421,24 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         }
 
         if ($font === null) {
-            $font = __DIR__ . '/Font/captcha'.$this->rand(0, 5).'.ttf';
+            $font = __DIR__ . '/Font/captcha' . $this->rand(0, 5) . '.ttf';
         }
 
         if (empty($this->backgroundImages)) {
             // if background images list is not set, use a color fill as a background
             $image   = imagecreatetruecolor($width, $height);
             if ($this->backgroundColor == null) {
-                $bg = imagecolorallocate($image, $this->rand(200, 255), $this->rand(200, 255), $this->rand(200, 255));
+                $bg = imagecolorallocatealpha($image, $this->rand(200, 255), $this->rand(200, 255), $this->rand(200, 255), $this->alpha);
             } else {
                 $color = $this->backgroundColor;
-                $bg = imagecolorallocate($image, $color[0], $color[1], $color[2]);
+                $bg = imagecolorallocatealpha($image, $color[0], $color[1], $color[2], $this->alpha);
             }
             imagefill($image, 0, 0, $bg);
+            // 设置PNG图像的保存选项，以确保透明度被保存  
+            imagesavealpha($image, true);
         } else {
             // use a random background image
-            $randomBackgroundImage = $this->backgroundImages[rand(0, count($this->backgroundImages)-1)];
+            $randomBackgroundImage = $this->backgroundImages[rand(0, count($this->backgroundImages) - 1)];
 
             $imageType = $this->validateBackgroundImage($randomBackgroundImage);
 
@@ -440,7 +448,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         // Apply effects
         if (!$this->ignoreAllEffects) {
             $square = $width * $height;
-            $effects = $this->rand($square/3000, $square/2000);
+            $effects = $this->rand($square / 3000, $square / 2000);
 
             // set the maximum number of lines to draw in front of the text
             if ($this->maxBehindLines != null && $this->maxBehindLines > 0) {
@@ -454,13 +462,14 @@ class CaptchaBuilder implements CaptchaBuilderInterface
             }
         }
 
-        // Write CAPTCHA text
-        $color = $this->writePhrase($image, $this->phrase, $font, $width, $height);
+
 
         // Apply effects
         if (!$this->ignoreAllEffects) {
+            // Write CAPTCHA text
+            $color = $this->writePhrase($image, $this->phrase, $font, $width, $height);
             $square = $width * $height;
-            $effects = $this->rand($square/3000, $square/2000);
+            $effects = $this->rand($square / 3000, $square / 2000);
 
             // set the maximum number of lines to draw in front of the text
             if ($this->maxFrontLines != null && $this->maxFrontLines > 0) {
@@ -495,6 +504,9 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     public function distort($image, $width, $height, $bg)
     {
         $contents = imagecreatetruecolor($width, $height);
+        imagefill($contents, 0, 0, $bg);
+        // 设置PNG图像的保存选项，以确保透明度被保存  
+        imagesavealpha($contents, true);
         $X          = $this->rand(0, $width);
         $Y          = $this->rand(0, $height);
         $phase      = $this->rand(0, 10);
@@ -531,7 +543,6 @@ class CaptchaBuilder implements CaptchaBuilderInterface
                 if ($p == 0) {
                     $p = $bg;
                 }
-
                 imagesetpixel($contents, $x, $y, $p);
             }
         }
@@ -562,7 +573,6 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     {
         ob_start();
         $this->output($quality);
-
         return ob_get_clean();
     }
 
@@ -571,7 +581,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
      */
     public function inline($quality = 90)
     {
-        return 'data:image/jpeg;base64,' . base64_encode($this->get($quality));
+        return 'data:image/png;base64,' . base64_encode($this->get($quality));
     }
 
     /**
@@ -579,7 +589,11 @@ class CaptchaBuilder implements CaptchaBuilderInterface
      */
     public function output($quality = 90)
     {
-        imagejpeg($this->contents, null, $quality);
+        if ($this->alpha > 0) {
+            imagepng($this->contents, null, $quality / 10);
+        } else {
+            imagejpeg($this->contents, null, $quality);
+        }
     }
 
     /**
@@ -690,7 +704,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         // check if file exists
         if (!file_exists($backgroundImage)) {
             $backgroundImageExploded = explode('/', $backgroundImage);
-            $imageFileName = count($backgroundImageExploded) > 1? $backgroundImageExploded[count($backgroundImageExploded)-1] : $backgroundImage;
+            $imageFileName = count($backgroundImageExploded) > 1 ? $backgroundImageExploded[count($backgroundImageExploded) - 1] : $backgroundImage;
 
             throw new Exception('Invalid background image: ' . $imageFileName);
         }
