@@ -3,6 +3,7 @@
 namespace Gregwar\Captcha;
 
 use \Exception;
+use \InvalidArgumentException;
 
 /**
  * Builds a new captcha image
@@ -133,14 +134,13 @@ class CaptchaBuilder implements CaptchaBuilderInterface
      */
     public $tempDir = 'temp/';
 
-    public function __construct($phrase = null, PhraseBuilderInterface $builder = null)
+    public function __construct($phrase = null, $builder = null)
     {
-        if ($builder === null) {
-            $this->builder = new PhraseBuilder;
-        } else {
-            $this->builder = $builder;
+        if ($builder !== null && !$builder instanceof PhraseBuilderInterface) {
+            throw new InvalidArgumentException('Builder ($builder) must implement PhraseBuilderInterface');
         }
 
+        $this->builder = $builder ?: new PhraseBuilder();
         $this->phrase = is_string($phrase) ? $phrase : $this->builder->build($phrase);
     }
 
