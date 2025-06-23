@@ -74,6 +74,52 @@ class CaptchaBuilderTest extends TestCase
         }
     }
 
+    public function testImageTransparency()
+    {
+        foreach (array(0 => false, 127 => true) as $alpha => $expected) {
+            $captcha = new CaptchaBuilder();
+            $captcha->setImageType('png')
+                ->setBackgroundColor(0, 0, 0)
+                ->setBackgroundAlpha($alpha)
+                ->build()
+                ->save($filename = __DIR__ . '/out.png');
+
+            $this->assertTransparency($filename, $expected);
+        }
+    }
+
+    /**
+     * @param string $filename
+     * @param bool $expected
+     * @return void
+     */
+    private function assertTransparency($filename, $expected)
+    {
+        $image = imagecreatefrompng($filename);
+        if (!$image) {
+            $this->fail('Could not open PNG file.');
+        }
+
+        $width  = imagesx($image);
+        $height = imagesy($image);
+
+        $hasTransparency = false;
+
+        for ($x = 0; $x < $width; ++$x) {
+            for ($y = 0; $y < $height; ++$y) {
+                $rgba = imagecolorat($image, $x, $y);
+                $alpha = ($rgba & 0x7F000000) >> 24;
+                if ($alpha > 0) {
+                    $hasTransparency = true;
+                    break 2; // Quit both loops
+                }
+            }
+        }
+        imagedestroy($image);
+
+        $this->assertSame($expected, $hasTransparency, 'The PNG does not have any transparent pixels.');
+    }
+
     /**
      * @param string $file
      * @param int $expected IMAGETYPE_JPEG / IMAGETYPE_PNG / IMAGETYPE_GIF

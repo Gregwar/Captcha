@@ -4,6 +4,7 @@ namespace Gregwar\Captcha;
 
 use \Exception;
 use \InvalidArgumentException;
+use LogicException;
 
 /**
  * Builds a new captcha image
@@ -38,6 +39,10 @@ class CaptchaBuilder implements CaptchaBuilderInterface
      * @var array
      */
     protected $backgroundColor = null;
+
+
+    /** @var int 0 to 127, 127 is completely transparent */
+    protected $bgAlpha = 0;
 
     /**
      * @var array
@@ -252,6 +257,33 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         return $this;
     }
 
+    /**
+     * @param int $alpha 0 to 127, 127 is completely transparent
+     * @return $this
+     */
+    public function setBackgroundAlpha($alpha)
+    {
+        if (! is_integer($alpha) || $alpha < 0 || $alpha > 127) {
+            throw new InvalidArgumentException('Argument $alpha must be an integer between 0 and 127.');
+        }
+
+        if ($this->getImageType() !== 'png') {
+            throw new LogicException('You can only set transparency on PNG images, call setImageType(\'png\')');
+        }
+
+        $this->bgAlpha = $alpha;
+
+        return $this;
+    }
+
+    public function getBackgroundAlpha()
+    {
+        return $this->bgAlpha;
+    }
+
+    /**
+     * Sets the line color to use
+     */
     public function setLineColor($r, $g, $b)
     {
         $this->lineColor = array($r, $g, $b);
@@ -440,12 +472,13 @@ class CaptchaBuilder implements CaptchaBuilderInterface
             // if background images list is not set, use a color fill as a background
             $image   = imagecreatetruecolor($width, $height);
             if ($this->backgroundColor == null) {
-                $bg = imagecolorallocate($image, $this->rand(200, 255), $this->rand(200, 255), $this->rand(200, 255));
+                $bg = imagecolorallocatealpha($image, $this->rand(200, 255), $this->rand(200, 255), $this->rand(200, 255), $this->bgAlpha);
             } else {
                 $color = $this->backgroundColor;
-                $bg = imagecolorallocate($image, $color[0], $color[1], $color[2]);
+                $bg = imagecolorallocatealpha($image, $color[0], $color[1], $color[2], $this->bgAlpha);
             }
             imagefill($image, 0, 0, $bg);
+            imagesavealpha($image, true);
         } else {
             // use a random background image
             $randomBackgroundImage = $this->backgroundImages[rand(0, count($this->backgroundImages)-1)];
@@ -513,6 +546,8 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     public function distort($image, $width, $height, $bg)
     {
         $contents = imagecreatetruecolor($width, $height);
+        imagefill($contents, 0, 0, $bg);
+        imagesavealpha($contents, true);
         $X          = $this->rand(0, $width);
         $Y          = $this->rand(0, $height);
         $phase      = $this->rand(0, 10);
@@ -558,7 +593,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     }
 
     /**
-     * Saves the Captcha to a jpeg file
+     * Saves the Captcha to file
      */
     public function save($filename, $quality = 90)
     {
