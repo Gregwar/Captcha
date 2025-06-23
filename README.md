@@ -99,6 +99,7 @@ You can use these functions :
 * **setMaxBehindLines($lines)**, sets the maximum number of lines behind the code
 * **setMaxFrontLines($lines)**, sets the maximum number of lines on the front of the code
 * **setImageType($type)**, sets the image output type to "jpeg", "png" or "gif"
+* **setScatterEffect($bool)**, enable or disable scatter effect (fuzzyness)
 
 If you want to change the number of character, you can call the phrase builder directly using
 extra parameters:

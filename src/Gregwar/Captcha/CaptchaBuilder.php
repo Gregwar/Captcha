@@ -200,9 +200,15 @@ class CaptchaBuilder implements CaptchaBuilderInterface
 
     /**
      * Enables/disable scatter effect - Only applies to PHP 7.4+
+     *
+     * @param bool  $scatterEffect
      */
-    public function setscatterEffect($scatterEffect)
+    public function setScatterEffect($scatterEffect)
     {
+        if (version_compare(PHP_VERSION, '7.4.0') < 0) {
+            throw new LogicException('Scatter effect is only available on PHP 7.4');
+        }
+
         $this->scatterEffect = (bool) $scatterEffect;
 
         return $this;
