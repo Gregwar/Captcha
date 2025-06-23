@@ -106,6 +106,11 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     protected $ignoreAllEffects = false;
 
     /**
+     * @var bool
+     */
+    protected $scatterEffect = true;
+
+    /**
      * Allowed image types for the background images
      *
      * @var array
@@ -181,6 +186,16 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     public function setDistortion($distortion)
     {
         $this->distortion = (bool) $distortion;
+
+        return $this;
+    }
+
+    /**
+     * Enables/disable scatter effect - Only applies to PHP 7.4+
+     */
+    public function setscatterEffect($scatterEffect)
+    {
+        $this->scatterEffect = (bool) $scatterEffect;
 
         return $this;
     }
@@ -351,7 +366,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     /**
      * Apply some post effects
      */
-    protected function postEffect($image)
+    protected function postEffect($image, $bg)
     {
         if (!function_exists('imagefilter')) {
             return;
@@ -361,13 +376,22 @@ class CaptchaBuilder implements CaptchaBuilderInterface
             return;
         }
 
+        // Scatter/Noise - Added in PHP 7.4
+	$scattered = false;
+        if (version_compare(PHP_VERSION, '7.4.0') >= 0) {
+            if($this->scatterEffect && $this->rand(0, 3) != 0 && $bg != null) {
+		$scattered = true;
+            	imagefilter($image, IMG_FILTER_SCATTER, 0, 2, array($bg));
+            }
+        }
+
         // Negate ?
         if ($this->rand(0, 1) == 0) {
             imagefilter($image, IMG_FILTER_NEGATE);
         }
 
         // Edge ?
-        if ($this->rand(0, 10) == 0) {
+        if (!$scattered && $this->rand(0, 10) == 0) {
             imagefilter($image, IMG_FILTER_EDGEDETECT);
         }
 
@@ -375,9 +399,11 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         imagefilter($image, IMG_FILTER_CONTRAST, $this->rand(-50, 10));
 
         // Colorize
-        if ($this->rand(0, 5) == 0) {
+        if (!$scattered && $this->rand(0, 5) == 0) {
             imagefilter($image, IMG_FILTER_COLORIZE, $this->rand(-80, 50), $this->rand(-80, 50), $this->rand(-80, 50));
         }
+
+
     }
 
     /**
@@ -532,7 +558,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
 
         // Post effects
         if (!$this->ignoreAllEffects) {
-            $this->postEffect($image);
+            $this->postEffect($image, $bg);
         }
 
         $this->contents = $image;
