@@ -53,7 +53,7 @@ class CaptchaBuilderTest extends TestCase
             ->getFingerprint()
         );
 
-        $this->assertTrue(is_int($int));
+        $this->assertTrue(is_int($int)); // @phpstan-ignore function.alreadyNarrowedType
     }
 
     public function testImageType()

@@ -29,5 +29,11 @@ jobs:
       - name: Install dependencies
         run: composer install
 
+      - name: Execute PHPStan
+        run: |
+          composer require phpstan/phpstan:2.1.17 phpstan/phpstan-phpunit:2.0.6
+          ./vendor/bin/phpstan analyse
+        if: ${{ matrix.php == '8.4' }}
+
       - name: Execute tests
         run: ./vendor/bin/phpunit

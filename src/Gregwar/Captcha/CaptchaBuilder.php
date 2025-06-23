@@ -50,7 +50,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     protected $backgroundImages = array();
 
     /**
-     * @var resource
+     * @var resource|\GdImage
      */
     protected $contents = null;
 
@@ -147,6 +147,10 @@ class CaptchaBuilder implements CaptchaBuilderInterface
      */
     public $tempDir = 'temp/';
 
+    /**
+     * @param string|null $phrase
+     * @param PhraseBuilderInterface|null $builder
+     */
     public function __construct($phrase = null, $builder = null)
     {
         if ($builder !== null && !$builder instanceof PhraseBuilderInterface) {
@@ -553,12 +557,12 @@ class CaptchaBuilder implements CaptchaBuilderInterface
 
         // Distort the image
         if ($this->distortion && !$this->ignoreAllEffects) {
-            $image = $this->distort($image, $width, $height, $bg);
+            $image = $this->distort($image, $width, $height, isset($bg) ? $bg : 0);
         }
 
         // Post effects
         if (!$this->ignoreAllEffects) {
-            $this->postEffect($image, $bg);
+            $this->postEffect($image, isset($bg) ? $bg : 0);
         }
 
         $this->contents = $image;
@@ -802,7 +806,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
      *
      * @param string $backgroundImage
      * @param string $imageType
-     * @return resource
+     * @return resource|\GdImage
      * @throws Exception
      */
     protected function createBackgroundImageFromType($backgroundImage, $imageType)
@@ -820,6 +824,10 @@ class CaptchaBuilder implements CaptchaBuilderInterface
 
             default:
                 throw new Exception('Not supported file type for background image!');
+        }
+
+        if ($image === false) {
+            throw new LogicException('Failed to create background image!');
         }
 
         return $image;
