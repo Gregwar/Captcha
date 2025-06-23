@@ -107,6 +107,9 @@ class CaptchaBuilder implements CaptchaBuilderInterface
      */
     protected $allowedBackgroundImageTypes = array('image/png', 'image/jpeg', 'image/gif');
 
+    /** @var string */
+    protected $imageType = "jpeg";
+
     /**
      * The image contents
      */
@@ -142,6 +145,21 @@ class CaptchaBuilder implements CaptchaBuilderInterface
 
         $this->builder = $builder ?: new PhraseBuilder();
         $this->phrase = is_string($phrase) ? $phrase : $this->builder->build($phrase);
+    }
+
+    public function setImageType($imageType)
+    {
+        $imageType = is_string($imageType) ? strtolower($imageType) : '';
+        if (in_array($imageType, array('png', 'jpeg', 'gif'))) {
+            $this->imageType = $imageType;
+        }
+
+        return $this;
+    }
+
+    public function getImageType()
+    {
+        return $this->imageType;
     }
 
     /**
@@ -544,7 +562,18 @@ class CaptchaBuilder implements CaptchaBuilderInterface
      */
     public function save($filename, $quality = 90)
     {
-        imagejpeg($this->contents, $filename, $quality);
+        $imageType = $this->getImageType();
+        switch ($imageType) {
+            case "png":
+                imagepng($this->contents, $filename, $quality / 10); // quality 0-9
+                break;
+            case "gif":
+                imagegif($this->contents, $filename);
+                break;
+            default:
+                imagejpeg($this->contents, $filename, $quality); // quality 0-100
+                break;
+        }
     }
 
     /**
@@ -571,7 +600,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
      */
     public function inline($quality = 90)
     {
-        return 'data:image/jpeg;base64,' . base64_encode($this->get($quality));
+        return sprintf('data:image/%s;base64,%s', $this->getImageType(), base64_encode($this->get($quality)));
     }
 
     /**
@@ -579,7 +608,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
      */
     public function output($quality = 90)
     {
-        imagejpeg($this->contents, null, $quality);
+        $this->save(null, $quality);
     }
 
     /**
