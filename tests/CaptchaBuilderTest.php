@@ -43,27 +43,27 @@ class CaptchaBuilderTest extends TestCase
             ->save('out.jpg')
         ;
 
-        $this->assertTrue(file_exists(__DIR__.'/../out.jpg'));
+        $this->assertTrue(file_exists(__DIR__ . '/../out.jpg'));
     }
 
     public function testFingerPrint()
     {
         $int = count(CaptchaBuilder::create()
             ->build()
-            ->getFingerprint()
-        );
+            ->getFingerprint());
 
         $this->assertTrue(is_int($int)); // @phpstan-ignore function.alreadyNarrowedType
     }
 
     public function testImageType()
     {
-        foreach (array('jpeg' => IMAGETYPE_JPEG, 'png' => IMAGETYPE_PNG, 'gif' => IMAGETYPE_GIF) as $type => $expected) {
+        $types = array('jpeg' => IMAGETYPE_JPEG, 'png' => IMAGETYPE_PNG, 'gif' => IMAGETYPE_GIF);
+        foreach ($types as $type => $expected) {
             $captcha = new CaptchaBuilder();
             $captcha->setImageType($type)->build();
 
             // Test save()
-            $captcha->save('out.'.$type);
+            $captcha->save('out.' . $type);
             $this->assertType(__DIR__ . '/../out.' . $type, $expected);
 
             // Test output()
