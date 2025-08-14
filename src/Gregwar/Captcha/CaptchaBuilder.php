@@ -471,7 +471,11 @@ class CaptchaBuilder implements CaptchaBuilderInterface
 
         $this->save($tempj);
         shell_exec("convert $tempj $tempp");
-        $value = trim(strtolower(shell_exec("ocrad $tempp")));
+        $ocradOutput = shell_exec("ocrad $tempp");
+        $value = '';
+        if (!is_null($ocradOutput)) {
+            $value = trim(strtolower($ocradOutput));
+        }
 
         @unlink($tempj);
         @unlink($tempp);
