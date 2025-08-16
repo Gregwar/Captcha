@@ -135,14 +135,23 @@ render a captcha and check it after the submission
 Symfony Bundle
 ================
 
-You can have a look at the following repository to enjoy the Symfony 2 bundle packaging this captcha generator :
-https://github.com/Gregwar/CaptchaBundle
+You can have a look at the following repository to enjoy the Symfony 2 bundle packaging this captcha generator:
+
+[https://github.com/Gregwar/CaptchaBundle](https://github.com/Gregwar/CaptchaBundle)
 
 Yii2 Extension
 ===============
 
-You can use the following extension for integrating with Yii2 Framework :
-https://github.com/juliardi/yii2-captcha
+You can use the following extension for integrating with Yii2 Framework:
+
+[https://github.com/juliardi/yii2-captcha](https://github.com/juliardi/yii2-captcha)
+
+Filament Extension
+===============
+
+You can use the following extension for integrating with Laravel Filament:
+
+[https://github.com/marcogermani87/filament-captcha](https://github.com/marcogermani87/filament-captcha)
 
 License
 =======
