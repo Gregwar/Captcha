@@ -40,7 +40,7 @@ class PhraseBuilder implements PhraseBuilderInterface
         }
 
         $phrase = '';
-        $chars = str_split($this->charset);
+        $chars = mb_str_split($this->charset);
 
         for ($i = 0; $i < $this->length; $i++) {
             $phrase .= $chars[array_rand($chars)];
@@ -62,7 +62,7 @@ class PhraseBuilder implements PhraseBuilderInterface
      */
     public static function doNiceize($str)
     {
-        return strtr(strtolower($str), '01', 'ol');
+        return strtr(mb_strtolower($str), '01', 'ol');
     }
 
     /**
