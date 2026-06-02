@@ -149,7 +149,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     /**
      * Temporary dir, for OCR check
      */
-    public $tempDir = 'temp/';
+    public $tempDir = '';
 
     /**
      * @param string|null                 $phrase
@@ -163,6 +163,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
 
         $this->builder = $builder ?: new PhraseBuilder();
         $this->phrase = is_string($phrase) ? $phrase : $this->builder->build($phrase);
+        $this->tempDir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'captcha' . DIRECTORY_SEPARATOR;
     }
 
     public function setImageType($imageType)
@@ -462,8 +463,8 @@ class CaptchaBuilder implements CaptchaBuilderInterface
      */
     public function isOCRReadable()
     {
-        if (!is_dir($this->tempDir)) {
-            @mkdir($this->tempDir, 0755, true);
+        if (!is_dir($this->tempDir) && !mkdir($this->tempDir, 0755, true)) {
+            throw new \Exception('Failed to create temporary directory for OCR check: ' . $this->tempDir);
         }
 
         $tempj = $this->tempDir . uniqid('captcha', true) . '.jpg';
@@ -471,10 +472,18 @@ class CaptchaBuilder implements CaptchaBuilderInterface
 
         $this->save($tempj);
         shell_exec("convert $tempj $tempp");
-        $value = trim(strtolower(shell_exec("ocrad $tempp")));
 
-        @unlink($tempj);
-        @unlink($tempp);
+        $ocradOutput = shell_exec("ocrad $tempp");
+        $value = '';
+        if (!is_null($ocradOutput)) {
+            $value = trim(strtolower($ocradOutput));
+        }
+        if (file_exists($tempj)) {
+            @unlink($tempj);
+        }
+        if (file_exists($tempp)) {
+            @unlink($tempp);
+        }
 
         return $this->testPhrase($value);
     }
