@@ -3,3 +3,4 @@ demo/*.jpg
 demo/*.pgm
 demo/temp/
 vendor/
+composer.lock

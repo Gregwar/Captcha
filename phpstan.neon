@@ -1,0 +1,9 @@
+parameters:
+  level: 8
+  reportUnmatchedIgnoredErrors: false
+  paths:
+    - src/
+    - tests/
+  treatPhpDocTypesAsCertain: false
+includes:
+  - phpstan-baseline.neon
