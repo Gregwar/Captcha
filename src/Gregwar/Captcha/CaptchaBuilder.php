@@ -141,15 +141,15 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     /**
      * Setting the phrase
      */
-    public function setPhrase($phrase): void
+    public function setPhrase(?string $phrase = null): void
     {
-        $this->phrase = (string) $phrase;
+        $this->phrase = $phrase;
     }
 
     /**
      * Enables/disable distortion
      */
-    public function setDistortion($distortion): static
+    public function setDistortion(bool|int $distortion): static
     {
         $this->distortion = (bool) $distortion;
 
@@ -211,7 +211,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
      */
     public function testPhrase(string $phrase): bool
     {
-        return ($this->builder->niceize($phrase) == $this->builder->niceize($this->getPhrase()));
+        return $this->getPhrase() && $this->builder->niceize($phrase) == $this->builder->niceize($this->getPhrase());
     }
 
     /**
@@ -334,7 +334,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     /**
      * Apply some post effects
      */
-    protected function postEffect(GdImage $image, $bg): void
+    protected function postEffect(GdImage $image, ?int $bg = null): void
     {
         if (!function_exists('imagefilter')) {
             return;
@@ -459,9 +459,10 @@ class CaptchaBuilder implements CaptchaBuilderInterface
 
     /**
      * Builds while the code is readable against an OCR
+     * @param int[] $fingerprint
      * @throws Exception
      */
-    public function buildAgainstOCR(int $width = 150, int $height = 40, ?string $font = null, $fingerprint = null): void
+    public function buildAgainstOCR(int $width = 150, int $height = 40, ?string $font = null, ?array $fingerprint = null): void
     {
         do {
             $this->build($width, $height, $font, $fingerprint);
@@ -470,9 +471,10 @@ class CaptchaBuilder implements CaptchaBuilderInterface
 
     /**
      * Generate the image
+     * @param int[] $fingerprint
      * @throws Exception
      */
-    public function build(int $width = 150, int $height = 40, ?string $font = null, $fingerprint = null): static
+    public function build(int $width = 150, int $height = 40, ?string $font = null, ?array $fingerprint = null): static
     {
         if (null !== $fingerprint) {
             $this->fingerprint = $fingerprint;
@@ -562,7 +564,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
 
         // Post effects
         if (!$this->ignoreAllEffects && $image) {
-            $this->postEffect($image, $bg);
+            $this->postEffect($image, $bg ?: null);
         }
 
         $this->contents = $image;
@@ -731,14 +733,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         return ($r << 16) | ($g << 8) | $b;
     }
 
-    /**
-     * @param $image
-     * @param $x
-     * @param $y
-     * @param $background
-     * @return int
-     */
-    protected function getCol($image, $x, $y, $background): int
+    protected function getCol(GdImage $image, float|int $x, float|int $y, int $background): int
     {
         $L = imagesx($image);
         $H = imagesy($image);
@@ -746,7 +741,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
             return $background;
         }
 
-        return imagecolorat($image, $x, $y) ?: 0;
+        return imagecolorat($image, (int)$x, (int)$y) ?: 0;
     }
 
     /**
