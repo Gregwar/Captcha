@@ -123,7 +123,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         $this->tempDir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'captcha' . DIRECTORY_SEPARATOR;
     }
 
-    public function setImageType($imageType): static
+    public function setImageType(?string $imageType = null): static
     {
         $imageType = is_string($imageType) ? strtolower($imageType) : '';
         if (in_array($imageType, array('png', 'jpeg', 'gif'))) {
@@ -300,7 +300,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     /**
      * Draw lines over the image
      */
-    protected function drawLine(GdImage $image, int $width, int $height, ?int $tcol = null): void
+    protected function drawLine(GdImage $image, int $width = 150, int $height = 40, ?int $tcol = null): void
     {
         if ($this->lineColor === null) {
             $red = $this->rand(100, 255);
@@ -375,10 +375,10 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     /**
      * Writes the phrase on the image
      */
-    protected function writePhrase($image, $phrase, $font, $width, $height): ?int
+    protected function writePhrase(GdImage $image, ?string $phrase, string $font, int $width, int $height): ?int
     {
-        $length = mb_strlen($phrase);
-        if ($length === 0) {
+        $length = mb_strlen((string)$phrase);
+        if ($length === 0 || !$phrase) {
             return imagecolorallocate($image, 0, 0, 0) ?: null;
         }
 
@@ -461,7 +461,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
      * Builds while the code is readable against an OCR
      * @throws Exception
      */
-    public function buildAgainstOCR(?int $width = 150, ?int $height = 40, ?string $font = null, $fingerprint = null): void
+    public function buildAgainstOCR(int $width = 150, int $height = 40, ?string $font = null, $fingerprint = null): void
     {
         do {
             $this->build($width, $height, $font, $fingerprint);
@@ -472,7 +472,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
      * Generate the image
      * @throws Exception
      */
-    public function build(?int $width = 150, ?int $height = 40, ?string $font = null, $fingerprint = null): static
+    public function build(int $width = 150, int $height = 40, ?string $font = null, $fingerprint = null): static
     {
         if (null !== $fingerprint) {
             $this->fingerprint = $fingerprint;
@@ -486,7 +486,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
             $font = __DIR__ . '/Font/captcha' . $this->rand(0, 5) . '.ttf';
         }
 
-        $bg = null;
+        $bg = 0;
         if (empty($this->backgroundImages) && $width > 0 && $height > 0) {
             // if background images list is not set, use a color fill as a background
             $image = imagecreatetruecolor($width, $height);
@@ -573,7 +573,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     /**
      * Distorts the image
      */
-    public function distort($image, $width, $height, $bg): ?GdImage
+    public function distort(GdImage $image, int $width, int $height, int $bg): ?GdImage
     {
         $contents = imagecreatetruecolor($width, $height);
         imagefill($contents, 0, 0, $bg);
@@ -626,7 +626,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
      * Saves the Captcha to file
      * @throws Exception
      */
-    public function save(?string $filename = null, ?int $quality = 90): void
+    public function save(?string $filename = null, int $quality = 90): void
     {
         $imageType = $this->getImageType();
         if (!$this->contents) {
@@ -634,13 +634,13 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         }
         switch ($imageType) {
             case "png":
-                imagepng($this->contents, $filename, ($quality) ? (int)($quality / 10) : 9); // quality 0-9
+                imagepng($this->contents, $filename, $quality); // quality 0-9
                 break;
             case "gif":
                 imagegif($this->contents, $filename);
                 break;
             default:
-                imagejpeg($this->contents, $filename, $quality ?? 90); // quality 0-100
+                imagejpeg($this->contents, $filename, $quality); // quality 0-100
                 break;
         }
     }
@@ -656,7 +656,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     /**
      * Gets the image contents
      */
-    public function get(?int $quality = 90): string
+    public function get(int $quality = 90): string
     {
         ob_start();
         $this->output($quality);
@@ -667,7 +667,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     /**
      * Gets the HTML inline base64
      */
-    public function inline(?int $quality = 90): string
+    public function inline(int $quality = 90): string
     {
         return sprintf('data:image/%s;base64,%s', $this->getImageType(), base64_encode($this->get($quality)));
     }
@@ -676,7 +676,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
      * Outputs the image
      * @throws Exception
      */
-    public function output(?int $quality = 90): void
+    public function output(int $quality = 90): void
     {
         $this->save(null, $quality);
     }
@@ -746,7 +746,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
             return $background;
         }
 
-        return imagecolorat($image, $x, $y);
+        return imagecolorat($image, $x, $y) ?: 0;
     }
 
     /**
