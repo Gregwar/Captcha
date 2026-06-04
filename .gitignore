@@ -4,3 +4,9 @@ demo/*.pgm
 demo/temp/
 vendor/
 composer.lock
+.phpunit.result.cache
+out.jpeg
+out.jpg
+out.png
+phpunit.xml.dist.bak
+out.gif

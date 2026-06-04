@@ -2,6 +2,7 @@
 
 namespace Gregwar\Captcha;
 
+use GdImage;
 use Symfony\Component\Finder\Finder;
 
 /**
@@ -14,39 +15,25 @@ class ImageFileHandler
 {
     /**
      * Name of folder for captcha images
-     *
-     * @var string
      */
-    protected $imageFolder;
+    protected string $imageFolder;
 
     /**
      * Absolute path to public web folder
-     *
-     * @var string
      */
-    protected $webPath;
+    protected string $webPath;
 
     /**
      * Frequency of garbage collection in fractions of 1
-     *
-     * @var int
      */
-    protected $gcFreq;
+    protected int $gcFreq = 0;
 
     /**
      * Maximum age of images in minutes
-     *
-     * @var int
      */
-    protected $expiration;
+    protected int $expiration;
 
-    /**
-     * @param $imageFolder
-     * @param $webPath
-     * @param $gcFreq
-     * @param $expiration
-     */
-    public function __construct($imageFolder, $webPath, $gcFreq, $expiration)
+    public function __construct(string $imageFolder, string $webPath, int $gcFreq, int $expiration)
     {
         $this->imageFolder      = $imageFolder;
         $this->webPath          = $webPath;
@@ -56,12 +43,8 @@ class ImageFileHandler
 
     /**
      * Saves the provided image content as a file
-     *
-     * @param resource|\GdImage $contents
-     *
-     * @return string
      */
-    public function saveAsFile($contents)
+    public function saveAsFile(GdImage $contents): string
     {
         $this->createFolderIfMissing();
 
@@ -74,12 +57,10 @@ class ImageFileHandler
 
     /**
      * Randomly runs garbage collection on the image directory
-     *
-     * @return bool
      */
-    public function collectGarbage()
+    public function collectGarbage(): bool
     {
-        if (!mt_rand(1, $this->gcFreq) == 1) {
+        if (mt_rand(0, $this->gcFreq) == 1) {
             return false;
         }
 
@@ -100,7 +81,7 @@ class ImageFileHandler
     /**
      * Creates the folder if it doesn't exist
      */
-    protected function createFolderIfMissing()
+    protected function createFolderIfMissing(): void
     {
         if (!file_exists($this->webPath . '/' . $this->imageFolder)) {
             mkdir($this->webPath . '/' . $this->imageFolder, 0755);

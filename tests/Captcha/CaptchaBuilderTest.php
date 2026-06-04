@@ -1,6 +1,6 @@
 <?php
 
-namespace Test;
+namespace Captcha;
 
 use Gregwar\Captcha\CaptchaBuilder;
 use PHPUnit\Framework\TestCase;
@@ -10,22 +10,22 @@ class CaptchaBuilderTest extends TestCase
     /**
      * Captcha phrases
      *
-     * @var array
+     * @var string[]
      */
-    private $phrases = array(
+    private array $phrases = [
         '@!#*?',
         's3cr3t',
         'p4ssw0rd',
         'hello',
         'world'
-    );
+    ];
 
-    public function testCreate()
+    public function testCreate(): void
     {
         $this->assertInstanceOf('Gregwar\Captcha\CaptchaBuilder', CaptchaBuilder::create());
     }
 
-    public function testBuild()
+    public function testBuild(): void
     {
         $this->assertInstanceOf('Gregwar\Captcha\CaptchaBuilder', CaptchaBuilder::create()->build());
 
@@ -35,18 +35,17 @@ class CaptchaBuilderTest extends TestCase
         }
     }
 
-    public function testDemo()
+    public function testDemo(): void
     {
         $captcha = new CaptchaBuilder();
         $captcha
             ->build()
-            ->save('out.jpg')
-        ;
+            ->save('out.jpg');
 
-        $this->assertTrue(file_exists(__DIR__ . '/../out.jpg'));
+        $this->assertTrue(file_exists(__DIR__ . '/../../out.jpg'));
     }
 
-    public function testFingerPrint()
+    public function testFingerPrint(): void
     {
         $int = count(CaptchaBuilder::create()
             ->build()
@@ -55,28 +54,32 @@ class CaptchaBuilderTest extends TestCase
         $this->assertTrue(is_int($int)); // @phpstan-ignore function.alreadyNarrowedType
     }
 
-    public function testImageType()
+    public function testImageType(): void
     {
-        $types = array('jpeg' => IMAGETYPE_JPEG, 'png' => IMAGETYPE_PNG, 'gif' => IMAGETYPE_GIF);
+        $types = [
+            'jpeg' => IMAGETYPE_JPEG,
+            'png' => IMAGETYPE_PNG,
+            'gif' => IMAGETYPE_GIF
+        ];
         foreach ($types as $type => $expected) {
             $captcha = new CaptchaBuilder();
             $captcha->setImageType($type)->build();
 
             // Test save()
             $captcha->save('out.' . $type);
-            $this->assertType(__DIR__ . '/../out.' . $type, $expected);
+            $this->assertType(__DIR__ . '/../../out.' . $type, $expected);
 
             // Test output()
             ob_start();
             $captcha->output();
-            file_put_contents(__DIR__ . '/../out.' . $type, ob_get_clean());
-            $this->assertType(__DIR__ . '/../out.' . $type, $expected);
+            file_put_contents(__DIR__ . '/../../out.' . $type, ob_get_clean());
+            $this->assertType(__DIR__ . '/../../out.' . $type, $expected);
         }
     }
 
-    public function testImageTransparency()
+    public function testImageTransparency(): void
     {
-        foreach (array(0 => false, 127 => true) as $alpha => $expected) {
+        foreach ([0 => false, 127 => true] as $alpha => $expected) {
             $captcha = new CaptchaBuilder();
             $captcha->setImageType('png')
                 ->setBackgroundColor(0, 0, 0)
@@ -88,12 +91,7 @@ class CaptchaBuilderTest extends TestCase
         }
     }
 
-    /**
-     * @param string $filename
-     * @param bool $expected
-     * @return void
-     */
-    private function assertTransparency($filename, $expected)
+    private function assertTransparency(string $filename, bool $expected): void
     {
         $image = imagecreatefrompng($filename);
         if (!$image) {
@@ -120,12 +118,7 @@ class CaptchaBuilderTest extends TestCase
         $this->assertSame($expected, $hasTransparency, 'The PNG does not have any transparent pixels.');
     }
 
-    /**
-     * @param string $file
-     * @param int $expected IMAGETYPE_JPEG / IMAGETYPE_PNG / IMAGETYPE_GIF
-     * @return void
-     */
-    private function assertType($file, $expected)
+    private function assertType(string $file, int $expected): void
     {
         $info = getimagesize($file);
         if ($info === false) {

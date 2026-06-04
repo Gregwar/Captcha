@@ -3,8 +3,12 @@
 namespace Gregwar\Captcha;
 
 use Exception;
+use GdImage;
 use InvalidArgumentException;
 use LogicException;
+use function imagecolorallocate;
+use function imagettfbbox;
+use function imagettftext;
 
 /**
  * Builds a new captcha image
@@ -15,131 +19,88 @@ use LogicException;
  */
 class CaptchaBuilder implements CaptchaBuilderInterface
 {
-    /**
-     * @var array
-     */
-    protected $fingerprint = array();
+    /** @var int[] $fingerprint */
+    protected array $fingerprint = [];
 
-    /**
-     * @var bool
-     */
-    protected $useFingerprint = false;
+    protected bool $useFingerprint = false;
 
-    /**
-     * @var array
-     */
-    protected $textColor = array();
+    /** @var int[]|null $textColor */
+    protected ?array $textColor = null;
 
-    /**
-     * @var array
-     */
-    protected $lineColor = null;
+    /** @var int[]|null $lineColor */
+    protected ?array $lineColor = null;
 
-    /**
-     * @var array
-     */
-    protected $backgroundColor = null;
+    /** @var int[]|null $backgroundColor */
+    protected ?array $backgroundColor = null;
 
+    protected int $bgAlpha = 0;
 
-    /**
-     * @var int 0 to 127, 127 is completely transparent
-     */
-    protected $bgAlpha = 0;
+    /** @var string[] $backgroundImages */
+    protected array $backgroundImages = [];
 
-    /**
-     * @var array
-     */
-    protected $backgroundImages = array();
+    protected ?GdImage $contents = null;
 
-    /**
-     * @var resource|\GdImage
-     */
-    protected $contents = null;
+    protected ?string $phrase = null;
 
-    /**
-     * @var string
-     */
-    protected $phrase = null;
+    protected ?PhraseBuilderInterface $builder = null;
 
-    /**
-     * @var PhraseBuilderInterface
-     */
-    protected $builder;
-
-    /**
-     * @var bool
-     */
-    protected $distortion = true;
+    protected bool $distortion = true;
 
     /**
      * The maximum number of lines to draw in front of
      * the image. null - use default algorithm
      */
-    protected $maxFrontLines = null;
+    protected ?int $maxFrontLines = null;
 
     /**
      * The maximum number of lines to draw behind
      * the image. null - use default algorithm
      */
-    protected $maxBehindLines = null;
+    protected ?int $maxBehindLines = null;
 
     /**
      * The maximum angle of char
      */
-    protected $maxAngle = 8;
+    protected int $maxAngle = 8;
 
     /**
      * The maximum offset of char
      */
-    protected $maxOffset = 5;
+    protected int $maxOffset = 5;
 
     /**
-     * Is the interpolation enabled ?
-     *
-     * @var bool
+     * Is the interpolation enabled?
      */
-    protected $interpolation = true;
+    protected bool $interpolation = true;
 
     /**
      * Ignore all effects
-     *
-     * @var bool
      */
-    protected $ignoreAllEffects = false;
+    protected bool $ignoreAllEffects = false;
 
-    /**
-     * @var bool
-     */
-    protected $scatterEffect = true;
+    protected bool $scatterEffect = true;
 
     /**
      * Allowed image types for the background images
      *
-     * @var array
+     * @var string[]
      */
-    protected $allowedBackgroundImageTypes = array('image/png', 'image/jpeg', 'image/gif');
+    protected array $allowedBackgroundImageTypes = ['image/png', 'image/jpeg', 'image/gif'];
 
-    /**
-     * @var string
-     */
-    protected $imageType = "jpeg";
+    protected string $imageType = "jpeg";
 
     /**
      * The image contents
      */
-    public function getContents()
+    public function getContents(): ?GdImage
     {
         return $this->contents;
     }
 
     /**
      * Enable/Disables the interpolation
-     *
-     * @param $interpolate bool  True to enable, false to disable
-     *
-     * @return CaptchaBuilder
      */
-    public function setInterpolation($interpolate = true)
+    public function setInterpolation(bool $interpolate = true): static
     {
         $this->interpolation = $interpolate;
 
@@ -149,34 +110,28 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     /**
      * Temporary dir, for OCR check
      */
-    public $tempDir = '';
+    public string $tempDir = '';
 
-    /**
-     * @param string|null                 $phrase
-     * @param PhraseBuilderInterface|null $builder
-     */
-    public function __construct($phrase = null, $builder = null)
+    public function __construct(?string $phrase = null, ?PhraseBuilderInterface $builder = null)
     {
-        if ($builder !== null && !$builder instanceof PhraseBuilderInterface) {
-            throw new InvalidArgumentException('Builder ($builder) must implement PhraseBuilderInterface');
-        }
-
-        $this->builder = $builder ?: new PhraseBuilder();
+        $this->builder = (!$builder)
+            ? new PhraseBuilder()
+            : $builder;
         $this->phrase = is_string($phrase) ? $phrase : $this->builder->build($phrase);
         $this->tempDir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'captcha' . DIRECTORY_SEPARATOR;
     }
 
-    public function setImageType($imageType)
+    public function setImageType(?string $imageType = null): static
     {
         $imageType = is_string($imageType) ? strtolower($imageType) : '';
-        if (in_array($imageType, array('png', 'jpeg', 'gif'))) {
+        if (in_array($imageType, ['png', 'jpeg', 'gif'])) {
             $this->imageType = $imageType;
         }
 
         return $this;
     }
 
-    public function getImageType()
+    public function getImageType(): string
     {
         return $this->imageType;
     }
@@ -184,15 +139,15 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     /**
      * Setting the phrase
      */
-    public function setPhrase($phrase)
+    public function setPhrase(?string $phrase = null): void
     {
-        $this->phrase = (string) $phrase;
+        $this->phrase = $phrase;
     }
 
     /**
      * Enables/disable distortion
      */
-    public function setDistortion($distortion)
+    public function setDistortion(bool|int $distortion): static
     {
         $this->distortion = (bool) $distortion;
 
@@ -201,10 +156,8 @@ class CaptchaBuilder implements CaptchaBuilderInterface
 
     /**
      * Enables/disable scatter effect - Only applies to PHP 7.4+
-     *
-     * @param bool  $scatterEffect
      */
-    public function setScatterEffect($scatterEffect)
+    public function setScatterEffect(bool $scatterEffect): static
     {
         if (version_compare(PHP_VERSION, '7.4.0') < 0) {
             throw new LogicException('Scatter effect is only available on PHP 7.4');
@@ -215,28 +168,28 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         return $this;
     }
 
-    public function setMaxBehindLines($maxBehindLines)
+    public function setMaxBehindLines(?int $maxBehindLines): static
     {
         $this->maxBehindLines = $maxBehindLines;
 
         return $this;
     }
 
-    public function setMaxFrontLines($maxFrontLines)
+    public function setMaxFrontLines(?int $maxFrontLines): static
     {
         $this->maxFrontLines = $maxFrontLines;
 
         return $this;
     }
 
-    public function setMaxAngle($maxAngle)
+    public function setMaxAngle(int $maxAngle): static
     {
         $this->maxAngle = $maxAngle;
 
         return $this;
     }
 
-    public function setMaxOffset($maxOffset)
+    public function setMaxOffset(int $maxOffset): static
     {
         $this->maxOffset = $maxOffset;
 
@@ -246,7 +199,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     /**
      * Gets the captcha phrase
      */
-    public function getPhrase()
+    public function getPhrase(): ?string
     {
         return $this->phrase;
     }
@@ -254,15 +207,15 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     /**
      * Returns true if the given phrase is good
      */
-    public function testPhrase($phrase)
+    public function testPhrase(string $phrase): bool
     {
-        return ($this->builder->niceize($phrase) == $this->builder->niceize($this->getPhrase()));
+        return $this->getPhrase() && $this->builder && $this->builder->niceize($phrase) == $this->builder->niceize($this->getPhrase());
     }
 
     /**
      * Instantiation
      */
-    public static function create($phrase = null)
+    public static function create(?string $phrase = null): CaptchaBuilder
     {
         return new self($phrase);
     }
@@ -270,9 +223,9 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     /**
      * Sets the text color to use
      */
-    public function setTextColor($r, $g, $b)
+    public function setTextColor(int $r, int $g, int $b): static
     {
-        $this->textColor = array($r, $g, $b);
+        $this->textColor = [$r, $g, $b];
 
         return $this;
     }
@@ -280,20 +233,20 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     /**
      * Sets the background color to use
      */
-    public function setBackgroundColor($r, $g, $b)
+    public function setBackgroundColor(int $r, int $g, int $b): static
     {
-        $this->backgroundColor = array($r, $g, $b);
+        $this->backgroundColor = [$r, $g, $b];
 
         return $this;
     }
 
     /**
-     * @param  int $alpha 0 to 127, 127 is completely transparent
+     * @param int $alpha 0 to 127, 127 is completely transparent
      * @return $this
      */
-    public function setBackgroundAlpha($alpha)
+    public function setBackgroundAlpha(int $alpha): static
     {
-        if (! is_integer($alpha) || $alpha < 0 || $alpha > 127) {
+        if ($alpha < 0 || $alpha > 127) {
             throw new InvalidArgumentException('Argument $alpha must be an integer between 0 and 127.');
         }
 
@@ -306,7 +259,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         return $this;
     }
 
-    public function getBackgroundAlpha()
+    public function getBackgroundAlpha(): int
     {
         return $this->bgAlpha;
     }
@@ -314,20 +267,17 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     /**
      * Sets the line color to use
      */
-    public function setLineColor($r, $g, $b)
+    public function setLineColor(int $r, int $g, int $b): static
     {
-        $this->lineColor = array($r, $g, $b);
+        $this->lineColor = [$r, $g, $b];
 
         return $this;
     }
 
     /**
      * Sets the ignoreAllEffects value
-     *
-     * @param  bool $ignoreAllEffects
-     * @return CaptchaBuilder
      */
-    public function setIgnoreAllEffects($ignoreAllEffects)
+    public function setIgnoreAllEffects(bool $ignoreAllEffects): static
     {
         $this->ignoreAllEffects = $ignoreAllEffects;
 
@@ -336,8 +286,9 @@ class CaptchaBuilder implements CaptchaBuilderInterface
 
     /**
      * Sets the list of background images to use (one image is randomly selected)
+     * @param string[] $backgroundImages
      */
-    public function setBackgroundImages(array $backgroundImages)
+    public function setBackgroundImages(array $backgroundImages): static
     {
         $this->backgroundImages = $backgroundImages;
 
@@ -347,7 +298,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     /**
      * Draw lines over the image
      */
-    protected function drawLine($image, $width, $height, $tcol = null)
+    protected function drawLine(GdImage $image, int $width = 150, int $height = 40, ?int $tcol = null): void
     {
         if ($this->lineColor === null) {
             $red = $this->rand(100, 255);
@@ -375,13 +326,13 @@ class CaptchaBuilder implements CaptchaBuilderInterface
             $Yb   = $this->rand($height / 2, $height);
         }
         imagesetthickness($image, $this->rand(1, 3));
-        imageline($image, $Xa, $Ya, $Xb, $Yb, $tcol);
+        imageline($image, $Xa, $Ya, $Xb, $Yb, (int)$tcol);
     }
 
     /**
      * Apply some post effects
      */
-    protected function postEffect($image, $bg)
+    protected function postEffect(GdImage $image, ?int $bg = null): void
     {
         if (!function_exists('imagefilter')) {
             return;
@@ -396,7 +347,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         if (defined('IMG_FILTER_SCATTER')) {
             if ($this->scatterEffect && $this->rand(0, 3) != 0 && $bg != null) {
                 $scattered = true;
-                imagefilter($image, IMG_FILTER_SCATTER, 0, 2, array($bg));
+                imagefilter($image, IMG_FILTER_SCATTER, 0, 2, [$bg]);
             }
         }
 
@@ -422,65 +373,81 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     /**
      * Writes the phrase on the image
      */
-    protected function writePhrase($image, $phrase, $font, $width, $height)
+    protected function writePhrase(GdImage $image, ?string $phrase, string $font, int $width, int $height): ?int
     {
-        $length = mb_strlen($phrase);
-        if ($length === 0) {
-            return \imagecolorallocate($image, 0, 0, 0);
+        $length = mb_strlen((string)$phrase);
+        if ($length === 0 || !$phrase) {
+            return imagecolorallocate($image, 0, 0, 0) ?: null;
         }
 
         // Gets the text size and start position
         $size = (int) round($width / $length) - $this->rand(0, 3) - 1;
-        $box = \imagettfbbox($size, 0, $font, $phrase);
+        $box = imagettfbbox($size, 0, $font, $phrase);
+        if (!$box) {
+            return null;
+        }
         $textWidth = $box[2] - $box[0];
         $textHeight = $box[1] - $box[7];
         $x = (int) round(($width - $textWidth) / 2);
         $y = (int) round(($height - $textHeight) / 2) + $size;
 
         if (!$this->textColor) {
-            $textColor = array($this->rand(0, 150), $this->rand(0, 150), $this->rand(0, 150));
+            $textColor = [$this->rand(0, 150), $this->rand(0, 150), $this->rand(0, 150)];
         } else {
             $textColor = $this->textColor;
         }
-        $col = \imagecolorallocate($image, $textColor[0], $textColor[1], $textColor[2]);
-
-        // Write the letters one by one, with random angle
-        for ($i = 0; $i < $length; $i++) {
-            $symbol = mb_substr($phrase, $i, 1);
-            $box = \imagettfbbox($size, 0, $font, $symbol);
-            $w = $box[2] - $box[0];
-            $angle = $this->rand(-$this->maxAngle, $this->maxAngle);
-            $offset = $this->rand(-$this->maxOffset, $this->maxOffset);
-            \imagettftext($image, $size, $angle, $x, $y + $offset, $col, $font, $symbol);
-            $x += $w;
+        $col = imagecolorallocate($image, $textColor[0], $textColor[1], $textColor[2]);
+        if ($col) {
+            // Write the letters one by one, with random angle
+            for ($i = 0; $i < $length; $i++) {
+                $symbol = mb_substr($phrase, $i, 1);
+                $box = imagettfbbox($size, 0, $font, $symbol);
+                if (!$box) {
+                    return null;
+                }
+                $w = $box[2] - $box[0];
+                $angle = $this->rand(-$this->maxAngle, $this->maxAngle);
+                $offset = $this->rand(-$this->maxOffset, $this->maxOffset);
+                imagettftext($image, $size, $angle, $x, $y + $offset, $col, $font, $symbol);
+                $x += $w;
+            }
         }
 
-        return $col;
+        return $col ?: null;
     }
 
     /**
      * Try to read the code against an OCR
+     * @throws Exception
      */
-    public function isOCRReadable()
+    public function isOCRReadable(): bool
     {
         if (!is_dir($this->tempDir) && !mkdir($this->tempDir, 0755, true)) {
-            throw new \Exception('Failed to create temporary directory for OCR check: ' . $this->tempDir);
+            throw new Exception('Failed to create temporary directory for OCR check: ' . $this->tempDir);
         }
 
         $tempj = $this->tempDir . uniqid('captcha', true) . '.jpg';
         $tempp = $this->tempDir . uniqid('captcha', true) . '.pgm';
 
         $this->save($tempj);
-        shell_exec("convert $tempj $tempp");
+        if (!file_exists($tempj) || shell_exec("convert $tempj $tempp") === null) {
+            if (!file_exists($tempj)) {
+                @unlink($tempj);
+            }
+            if (!file_exists($tempp)) {
+                @unlink($tempp);
+            }
+
+            throw new Exception('isOCRReadable failed to convert file for testing.');
+        }
 
         $ocradOutput = shell_exec("ocrad $tempp");
         $value = '';
-        if (!is_null($ocradOutput)) {
+        if ($ocradOutput) {
             $value = trim(strtolower($ocradOutput));
         }
-        if (file_exists($tempj)) {
-            @unlink($tempj);
-        }
+
+        @unlink($tempj);
         if (file_exists($tempp)) {
             @unlink($tempp);
         }
@@ -490,8 +457,10 @@ class CaptchaBuilder implements CaptchaBuilderInterface
 
     /**
      * Builds while the code is readable against an OCR
+     * @param int[] $fingerprint
+     * @throws Exception
      */
-    public function buildAgainstOCR($width = 150, $height = 40, $font = null, $fingerprint = null)
+    public function buildAgainstOCR(int $width = 150, int $height = 40, ?string $font = null, ?array $fingerprint = null): void
     {
         do {
             $this->build($width, $height, $font, $fingerprint);
@@ -500,14 +469,16 @@ class CaptchaBuilder implements CaptchaBuilderInterface
 
     /**
      * Generate the image
+     * @param int[] $fingerprint
+     * @throws Exception
      */
-    public function build($width = 150, $height = 40, $font = null, $fingerprint = null)
+    public function build(int $width = 150, int $height = 40, ?string $font = null, ?array $fingerprint = null): static
     {
         if (null !== $fingerprint) {
             $this->fingerprint = $fingerprint;
             $this->useFingerprint = true;
         } else {
-            $this->fingerprint = array();
+            $this->fingerprint = [];
             $this->useFingerprint = false;
         }
 
@@ -515,9 +486,10 @@ class CaptchaBuilder implements CaptchaBuilderInterface
             $font = __DIR__ . '/Font/captcha' . $this->rand(0, 5) . '.ttf';
         }
 
-        if (empty($this->backgroundImages)) {
+        $bg = 0;
+        if (empty($this->backgroundImages) && $width > 0 && $height > 0) {
             // if background images list is not set, use a color fill as a background
-            $image   = imagecreatetruecolor($width, $height);
+            $image = imagecreatetruecolor($width, $height);
             if ($this->backgroundColor == null) {
                 $bg = imagecolorallocatealpha(
                     $image,
@@ -530,7 +502,8 @@ class CaptchaBuilder implements CaptchaBuilderInterface
                 $color = $this->backgroundColor;
                 $bg = imagecolorallocatealpha($image, $color[0], $color[1], $color[2], $this->bgAlpha);
             }
-            imagefill($image, 0, 0, $bg);
+
+            imagefill($image, 0, 0, $bg ?: 0);
             imagesavealpha($image, true);
         } else {
             // use a random background image
@@ -540,7 +513,9 @@ class CaptchaBuilder implements CaptchaBuilderInterface
 
             $image = $this->createBackgroundImageFromType($randomBackgroundImage, $imageType);
         }
-
+        if (!$image) {
+            throw new LogicException('Failed to create background image');
+        }
         // Apply effects
         if (!$this->ignoreAllEffects) {
             $square = $width * $height;
@@ -580,12 +555,12 @@ class CaptchaBuilder implements CaptchaBuilderInterface
 
         // Distort the image
         if ($this->distortion && !$this->ignoreAllEffects) {
-            $image = $this->distort($image, $width, $height, isset($bg) ? $bg : 0);
+            $image = $this->distort($image, $width, $height, $bg ?: 0);
         }
 
         // Post effects
-        if (!$this->ignoreAllEffects) {
-            $this->postEffect($image, isset($bg) ? $bg : 0);
+        if (!$this->ignoreAllEffects && $image) {
+            $this->postEffect($image, $bg ?: null);
         }
 
         $this->contents = $image;
@@ -596,7 +571,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     /**
      * Distorts the image
      */
-    public function distort($image, $width, $height, $bg)
+    public function distort(GdImage $image, int $width, int $height, int $bg = 0): ?GdImage
     {
         $contents = imagecreatetruecolor($width, $height);
         imagefill($contents, 0, 0, $bg);
@@ -642,18 +617,22 @@ class CaptchaBuilder implements CaptchaBuilderInterface
             }
         }
 
-        return $contents;
+        return $contents ?: null;
     }
 
     /**
      * Saves the Captcha to file
+     * @throws Exception
      */
-    public function save($filename, $quality = 90)
+    public function save(?string $filename = null, int $quality = 90): void
     {
         $imageType = $this->getImageType();
+        if (!$this->contents) {
+            throw new Exception('No image generated');
+        }
         switch ($imageType) {
             case "png":
-                imagepng($this->contents, $filename, $quality / 10); // quality 0-9
+                imagepng($this->contents, $filename, ($quality / 10)); // quality 0-9
                 break;
             case "gif":
                 imagegif($this->contents, $filename);
@@ -667,7 +646,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     /**
      * Gets the image GD
      */
-    public function getGd()
+    public function getGd(): ?GdImage
     {
         return $this->contents;
     }
@@ -675,34 +654,35 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     /**
      * Gets the image contents
      */
-    public function get($quality = 90)
+    public function get(int $quality = 90): string
     {
         ob_start();
         $this->output($quality);
 
-        return ob_get_clean();
+        return ob_get_clean() ?: '';
     }
 
     /**
      * Gets the HTML inline base64
      */
-    public function inline($quality = 90)
+    public function inline(int $quality = 90): string
     {
         return sprintf('data:image/%s;base64,%s', $this->getImageType(), base64_encode($this->get($quality)));
     }
 
     /**
      * Outputs the image
+     * @throws Exception
      */
-    public function output($quality = 90)
+    public function output(int $quality = 90): void
     {
         $this->save(null, $quality);
     }
 
     /**
-     * @return array
+     * @return int[]
      */
-    public function getFingerprint()
+    public function getFingerprint(): array
     {
         return $this->fingerprint;
     }
@@ -711,34 +691,20 @@ class CaptchaBuilder implements CaptchaBuilderInterface
      * Returns a random number or the next number in the
      * fingerprint
      */
-    protected function rand($min, $max)
+    protected function rand(int $min, int $max): int
     {
-        if (!is_array($this->fingerprint)) {
-            $this->fingerprint = array();
-        }
-
         if ($this->useFingerprint) {
             $value = current($this->fingerprint);
             next($this->fingerprint);
         } else {
-            $value = mt_rand((int)$min, (int)$max);
+            $value = mt_rand($min, $max);
             $this->fingerprint[] = $value;
         }
 
-        return $value;
+        return (int)$value;
     }
 
-    /**
-     * @param $x
-     * @param $y
-     * @param $nw
-     * @param $ne
-     * @param $sw
-     * @param $se
-     *
-     * @return int
-     */
-    protected function interpolate($x, $y, $nw, $ne, $sw, $se)
+    protected function interpolate(float $x, float $y, float $nw, float $ne, float $sw, float $se): int
     {
         list($r0, $g0, $b0) = $this->getRGB($nw);
         list($r1, $g1, $b1) = $this->getRGB($ne);
@@ -763,14 +729,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         return ($r << 16) | ($g << 8) | $b;
     }
 
-    /**
-     * @param $image
-     * @param $x
-     * @param $y
-     *
-     * @return int
-     */
-    protected function getCol($image, $x, $y, $background)
+    protected function getCol(GdImage $image, float|int $x, float|int $y, int $background): int
     {
         $L = imagesx($image);
         $H = imagesy($image);
@@ -778,31 +737,26 @@ class CaptchaBuilder implements CaptchaBuilderInterface
             return $background;
         }
 
-        return imagecolorat($image, $x, $y);
+        return imagecolorat($image, (int)$x, (int)$y) ?: 0;
     }
 
     /**
-     * @param $col
-     *
-     * @return array
+     * @return array{int, int, int}
      */
-    protected function getRGB($col)
+    protected function getRGB(float $col): array
     {
-        return array(
+        return [
             (int) ($col >> 16) & 0xff,
             (int) ($col >> 8) & 0xff,
             (int) ($col) & 0xff,
-        );
+        ];
     }
 
     /**
      * Validate the background image path. Return the image type if valid
-     *
-     * @param  string $backgroundImage
-     * @return string
      * @throws Exception
      */
-    protected function validateBackgroundImage($backgroundImage)
+    protected function validateBackgroundImage(string $backgroundImage): ?string
     {
         // check if file exists
         if (!file_exists($backgroundImage)) {
@@ -815,7 +769,11 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         }
 
         // check image type
-        $finfo = finfo_open(FILEINFO_MIME_TYPE); // return mime type ala mimetype extension
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        if (!$finfo) {
+            throw new Exception('Failed finfo_open');
+        }
+
         $imageType = finfo_file($finfo, $backgroundImage);
         finfo_close($finfo);
 
@@ -826,18 +784,14 @@ class CaptchaBuilder implements CaptchaBuilderInterface
             );
         }
 
-        return $imageType;
+        return $imageType ?: null;
     }
 
     /**
      * Create background image from type
-     *
-     * @param  string $backgroundImage
-     * @param  string $imageType
-     * @return resource|\GdImage
      * @throws Exception
      */
-    protected function createBackgroundImageFromType($backgroundImage, $imageType)
+    protected function createBackgroundImageFromType(string $backgroundImage, ?string $imageType = null): GdImage
     {
         switch ($imageType) {
             case 'image/jpeg':
@@ -849,7 +803,6 @@ class CaptchaBuilder implements CaptchaBuilderInterface
             case 'image/gif':
                 $image = imagecreatefromgif($backgroundImage);
                 break;
-
             default:
                 throw new Exception('Not supported file type for background image!');
         }
