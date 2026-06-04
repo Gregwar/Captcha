@@ -1,6 +1,6 @@
 <?php
 
-namespace Test;
+namespace Captcha;
 
 use Gregwar\Captcha\CaptchaBuilder;
 use PHPUnit\Framework\TestCase;
@@ -64,13 +64,13 @@ class CaptchaBuilderTest extends TestCase
 
             // Test save()
             $captcha->save('out.' . $type);
-            $this->assertType(__DIR__ . '/../out.' . $type, $expected);
+            $this->assertType(__DIR__ . '/../../out.' . $type, $expected);
 
             // Test output()
             ob_start();
             $captcha->output();
-            file_put_contents(__DIR__ . '/../out.' . $type, ob_get_clean());
-            $this->assertType(__DIR__ . '/../out.' . $type, $expected);
+            file_put_contents(__DIR__ . '/../../out.' . $type, ob_get_clean());
+            $this->assertType(__DIR__ . '/../../out.' . $type, $expected);
         }
     }
 

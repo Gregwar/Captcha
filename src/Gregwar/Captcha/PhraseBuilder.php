@@ -12,6 +12,7 @@ class PhraseBuilder implements PhraseBuilderInterface
     public int $length;
 
     public string $charset;
+
     /**
      * Constructs a PhraseBuilder with given parameters
      */

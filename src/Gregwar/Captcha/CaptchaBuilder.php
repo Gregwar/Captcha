@@ -42,7 +42,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
 
     protected ?string $phrase = null;
 
-    protected PhraseBuilderInterface $builder;
+    protected ?PhraseBuilderInterface $builder = null;
 
     protected bool $distortion = true;
 
@@ -114,11 +114,9 @@ class CaptchaBuilder implements CaptchaBuilderInterface
 
     public function __construct(?string $phrase = null, ?PhraseBuilderInterface $builder = null)
     {
-        if (!$builder instanceof PhraseBuilderInterface) {
-            throw new InvalidArgumentException('Builder ($builder) must implement PhraseBuilderInterface');
-        }
-
-        $this->builder = $builder;
+        $this->builder = (!$builder)
+            ? new PhraseBuilder()
+            : $builder;
         $this->phrase = is_string($phrase) ? $phrase : $this->builder->build($phrase);
         $this->tempDir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'captcha' . DIRECTORY_SEPARATOR;
     }
@@ -349,7 +347,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         if (defined('IMG_FILTER_SCATTER')) {
             if ($this->scatterEffect && $this->rand(0, 3) != 0 && $bg != null) {
                 $scattered = true;
-                imagefilter($image, IMG_FILTER_SCATTER, 0, 2, $bg);
+                imagefilter($image, IMG_FILTER_SCATTER, 0, 2, [$bg]);
             }
         }
 
