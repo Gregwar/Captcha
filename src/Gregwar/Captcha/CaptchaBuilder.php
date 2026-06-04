@@ -159,11 +159,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
      */
     public function setScatterEffect(bool $scatterEffect): static
     {
-        if (version_compare(PHP_VERSION, '7.4.0') < 0) {
-            throw new LogicException('Scatter effect is only available on PHP 7.4');
-        }
-
-        $this->scatterEffect = (bool) $scatterEffect;
+        $this->scatterEffect = $scatterEffect;
 
         return $this;
     }
