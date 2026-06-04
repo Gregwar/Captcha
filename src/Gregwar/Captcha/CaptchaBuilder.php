@@ -393,7 +393,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
             $textColor = $this->textColor;
         }
         $col = imagecolorallocate($image, $textColor[0], $textColor[1], $textColor[2]);
-        if ($col) {
+        if ($col !== false) {
             // Write the letters one by one, with random angle
             for ($i = 0; $i < $length; $i++) {
                 $symbol = mb_substr($phrase, $i, 1);
