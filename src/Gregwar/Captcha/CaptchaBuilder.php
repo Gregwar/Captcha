@@ -159,11 +159,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
      */
     public function setScatterEffect(bool $scatterEffect): static
     {
-        if (version_compare(PHP_VERSION, '7.4.0') < 0) {
-            throw new LogicException('Scatter effect is only available on PHP 7.4');
-        }
-
-        $this->scatterEffect = (bool) $scatterEffect;
+        $this->scatterEffect = $scatterEffect;
 
         return $this;
     }
@@ -447,9 +443,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         }
 
         @unlink($tempj);
-        if (file_exists($tempp)) {
-            @unlink($tempp);
-        }
+        @unlink($tempp);
 
         return $this->testPhrase($value);
     }
@@ -703,7 +697,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         return (int)$value;
     }
 
-    protected function interpolate(float $x, float $y, float $nw, float $ne, float $sw, float $se): int
+    protected function interpolate(float $x, float $y, int $nw, int $ne, int $sw, int $se): int
     {
         list($r0, $g0, $b0) = $this->getRGB($nw);
         list($r1, $g1, $b1) = $this->getRGB($ne);
@@ -742,12 +736,12 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     /**
      * @return array{int, int, int}
      */
-    protected function getRGB(float $col): array
+    protected function getRGB(int $col): array
     {
         return [
-            (int) ($col >> 16) & 0xff,
-            (int) ($col >> 8) & 0xff,
-            (int) ($col) & 0xff,
+            ($col >> 16) & 0xff,
+            ($col >> 8) & 0xff,
+            $col & 0xff,
         ];
     }
 
@@ -792,19 +786,12 @@ class CaptchaBuilder implements CaptchaBuilderInterface
      */
     protected function createBackgroundImageFromType(string $backgroundImage, ?string $imageType = null): GdImage
     {
-        switch ($imageType) {
-            case 'image/jpeg':
-                $image = imagecreatefromjpeg($backgroundImage);
-                break;
-            case 'image/png':
-                $image = imagecreatefrompng($backgroundImage);
-                break;
-            case 'image/gif':
-                $image = imagecreatefromgif($backgroundImage);
-                break;
-            default:
-                throw new Exception('Not supported file type for background image!');
-        }
+        $image = match ($imageType) {
+            'image/jpeg' => imagecreatefromjpeg($backgroundImage),
+            'image/png' => imagecreatefrompng($backgroundImage),
+            'image/gif' => imagecreatefromgif($backgroundImage),
+            default => throw new Exception('Not supported file type for background image!'),
+        };
 
         if ($image === false) {
             throw new LogicException('Failed to create background image!');
