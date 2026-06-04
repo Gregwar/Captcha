@@ -430,12 +430,11 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         $tempp = $this->tempDir . uniqid('captcha', true) . '.pgm';
 
         $this->save($tempj);
-        if (!file_exists($tempj) || shell_exec("convert $tempj $tempp") === null) {
+
+        shell_exec("convert $tempj $tempp");
+        if (!file_exists($tempp)) {
             if (!file_exists($tempj)) {
                 @unlink($tempj);
-            }
-            if (!file_exists($tempp)) {
-                @unlink($tempp);
             }
 
             throw new Exception('isOCRReadable failed to convert file for testing.');
