@@ -209,7 +209,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
      */
     public function testPhrase(string $phrase): bool
     {
-        return $this->getPhrase() && $this->builder->niceize($phrase) == $this->builder->niceize($this->getPhrase());
+        return $this->getPhrase() && $this->builder && $this->builder->niceize($phrase) == $this->builder->niceize($this->getPhrase());
     }
 
     /**
@@ -503,7 +503,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
                 $bg = imagecolorallocatealpha($image, $color[0], $color[1], $color[2], $this->bgAlpha);
             }
 
-            imagefill($image, 0, 0, $bg ?? 0);
+            imagefill($image, 0, 0, $bg ?: 0);
             imagesavealpha($image, true);
         } else {
             // use a random background image
@@ -555,7 +555,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
 
         // Distort the image
         if ($this->distortion && !$this->ignoreAllEffects) {
-            $image = $this->distort($image, $width, $height, $bg);
+            $image = $this->distort($image, $width, $height, $bg ?: 0);
         }
 
         // Post effects
