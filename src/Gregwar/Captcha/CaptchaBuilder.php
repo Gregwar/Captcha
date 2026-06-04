@@ -315,15 +315,15 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         }
 
         if ($this->rand(0, 1)) { // Horizontal
-            $Xa   = $this->rand(0, $width / 2);
+            $Xa   = $this->rand(0, (int)($width / 2));
             $Ya   = $this->rand(0, $height);
-            $Xb   = $this->rand($width / 2, $width);
+            $Xb   = $this->rand((int)($width / 2), $width);
             $Yb   = $this->rand(0, $height);
         } else { // Vertical
             $Xa   = $this->rand(0, $width);
-            $Ya   = $this->rand(0, $height / 2);
+            $Ya   = $this->rand(0, (int)($height / 2));
             $Xb   = $this->rand(0, $width);
-            $Yb   = $this->rand($height / 2, $height);
+            $Yb   = $this->rand((int)($height / 2), $height);
         }
         imagesetthickness($image, $this->rand(1, 3));
         imageline($image, $Xa, $Ya, $Xb, $Yb, (int)$tcol);
@@ -430,12 +430,11 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         $tempp = $this->tempDir . uniqid('captcha', true) . '.pgm';
 
         $this->save($tempj);
-        if (!file_exists($tempj) || shell_exec("convert $tempj $tempp") === null) {
+
+        shell_exec("convert $tempj $tempp");
+        if (!file_exists($tempp)) {
             if (!file_exists($tempj)) {
                 @unlink($tempj);
-            }
-            if (!file_exists($tempp)) {
-                @unlink($tempp);
             }
 
             throw new Exception('isOCRReadable failed to convert file for testing.');
@@ -519,7 +518,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         // Apply effects
         if (!$this->ignoreAllEffects) {
             $square = $width * $height;
-            $effects = $this->rand($square / 3000, $square / 2000);
+            $effects = $this->rand((int)($square / 3000), (int)($square / 2000));
 
             // set the maximum number of lines to draw in front of the text
             if ($this->maxBehindLines != null && $this->maxBehindLines > 0) {
@@ -539,7 +538,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         // Apply effects
         if (!$this->ignoreAllEffects) {
             $square = $width * $height;
-            $effects = $this->rand($square / 3000, $square / 2000);
+            $effects = $this->rand((int)($square / 3000), (int)($square / 2000));
 
             // set the maximum number of lines to draw in front of the text
             if ($this->maxFrontLines != null && $this->maxFrontLines > 0) {
