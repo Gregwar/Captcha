@@ -9,9 +9,9 @@ namespace Gregwar\Captcha;
  */
 class PhraseBuilder implements PhraseBuilderInterface
 {
-    public int $length;
+    public int $length = 5;
 
-    public string $charset;
+    public string $charset = 'abcdefghijklmnpqrstuvwxyz123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
     /**
      * Constructs a PhraseBuilder with given parameters
