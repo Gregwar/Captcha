@@ -40,10 +40,9 @@ class CaptchaBuilderTest extends TestCase
         $captcha = new CaptchaBuilder();
         $captcha
             ->build()
-            ->save('out.jpg')
-        ;
+            ->save('out.jpg');
 
-        $this->assertTrue(file_exists(__DIR__ . '/../out.jpg'));
+        $this->assertTrue(file_exists(__DIR__ . '/../../out.jpg'));
     }
 
     public function testFingerPrint(): void
@@ -57,7 +56,11 @@ class CaptchaBuilderTest extends TestCase
 
     public function testImageType(): void
     {
-        $types = array('jpeg' => IMAGETYPE_JPEG, 'png' => IMAGETYPE_PNG, 'gif' => IMAGETYPE_GIF);
+        $types = [
+            'jpeg' => IMAGETYPE_JPEG,
+            'png' => IMAGETYPE_PNG,
+            'gif' => IMAGETYPE_GIF
+        ];
         foreach ($types as $type => $expected) {
             $captcha = new CaptchaBuilder();
             $captcha->setImageType($type)->build();
@@ -76,7 +79,7 @@ class CaptchaBuilderTest extends TestCase
 
     public function testImageTransparency(): void
     {
-        foreach (array(0 => false, 127 => true) as $alpha => $expected) {
+        foreach ([0 => false, 127 => true] as $alpha => $expected) {
             $captcha = new CaptchaBuilder();
             $captcha->setImageType('png')
                 ->setBackgroundColor(0, 0, 0)

@@ -124,7 +124,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     public function setImageType(?string $imageType = null): static
     {
         $imageType = is_string($imageType) ? strtolower($imageType) : '';
-        if (in_array($imageType, array('png', 'jpeg', 'gif'))) {
+        if (in_array($imageType, ['png', 'jpeg', 'gif'])) {
             $this->imageType = $imageType;
         }
 
@@ -392,7 +392,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         $y = (int) round(($height - $textHeight) / 2) + $size;
 
         if (!$this->textColor) {
-            $textColor = array($this->rand(0, 150), $this->rand(0, 150), $this->rand(0, 150));
+            $textColor = [$this->rand(0, 150), $this->rand(0, 150), $this->rand(0, 150)];
         } else {
             $textColor = $this->textColor;
         }
@@ -502,10 +502,8 @@ class CaptchaBuilder implements CaptchaBuilderInterface
                 $color = $this->backgroundColor;
                 $bg = imagecolorallocatealpha($image, $color[0], $color[1], $color[2], $this->bgAlpha);
             }
-            if (!$bg) {
-               throw new LogicException('Failed to allocate background color');
-            }
-            imagefill($image, 0, 0, $bg);
+
+            imagefill($image, 0, 0, $bg ?? 0);
             imagesavealpha($image, true);
         } else {
             // use a random background image
@@ -573,7 +571,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     /**
      * Distorts the image
      */
-    public function distort(GdImage $image, int $width, int $height, int $bg): ?GdImage
+    public function distort(GdImage $image, int $width, int $height, int $bg = 0): ?GdImage
     {
         $contents = imagecreatetruecolor($width, $height);
         imagefill($contents, 0, 0, $bg);
@@ -634,7 +632,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         }
         switch ($imageType) {
             case "png":
-                imagepng($this->contents, $filename, $quality); // quality 0-9
+                imagepng($this->contents, $filename, ($quality / 10)); // quality 0-9
                 break;
             case "gif":
                 imagegif($this->contents, $filename);

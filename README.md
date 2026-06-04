@@ -92,7 +92,7 @@ You can use these functions :
 * **inline($quality = 80)**, returns the jpeg code directly in the HTML page
 * **setBackgroundColor($r, $g, $b)**, sets the background color to force it (this will disable many effects and is not recommended)
 * **setBackgroundAlpha($alpha)**, sets the background transparency 0 is fully opaque, 127 is fully transparent
-* **setBackgroundImages(array($imagepath1, $imagePath2))**, Sets custom background images to be used as captcha background. It is recommended to disable image effects when passing custom images for background (ignore_all_effects). A random image is selected from the list passed, the full paths to the image files must be passed.
+* **setBackgroundImages([$imagepath1, $imagePath2])**, Sets custom background images to be used as captcha background. It is recommended to disable image effects when passing custom images for background (ignore_all_effects). A random image is selected from the list passed, the full paths to the image files must be passed.
 * **setInterpolation($interpolate)**, enable or disable the interpolation (enabled by default), disabling it will be quicker but the images will look uglier
 * **setIgnoreAllEffects($ignoreAllEffects)**, disable all effects on the captcha image. Recommended to use when passing custom background images for the captcha.
 * **testPhrase($phrase)**, returns true if the given phrase is good
@@ -101,7 +101,7 @@ You can use these functions :
 * **setImageType($type)**, sets the image output type to "jpeg", "png" or "gif"
 * **setScatterEffect($bool)**, enable or disable scatter effect (fuzzyness)
 
-If you want to change the number of character, you can call the phrase builder directly using
+If you want to change the number of characters, you can call the phrase builder directly using
 extra parameters:
 
 ```php
@@ -135,13 +135,13 @@ render a captcha and check it after the submission
 Symfony Bundle
 ================
 
-You can have a look at the following repository to enjoy the Symfony 2 bundle packaging this captcha generator :
+You can have a look at the following repository to enjoy the Symfony 2 bundle packaging this captcha generator:
 https://github.com/Gregwar/CaptchaBundle
 
 Yii2 Extension
 ===============
 
-You can use the following extension for integrating with Yii2 Framework :
+You can use the following extension for integrating with Yii2 Framework:
 https://github.com/juliardi/yii2-captcha
 
 License
