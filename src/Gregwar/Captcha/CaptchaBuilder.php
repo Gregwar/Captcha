@@ -427,7 +427,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
 
         $this->save($tempj);
 
-        shell_exec("convert $tempj $tempp");
+        shell_exec("convert " . escapeshellarg($tempj) . " " . escapeshellarg($tempp));
         if (!file_exists($tempp)) {
             if (!file_exists($tempj)) {
                 @unlink($tempj);
@@ -436,7 +436,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
             throw new Exception('isOCRReadable failed to convert file for testing.');
         }
 
-        $ocradOutput = shell_exec("ocrad $tempp");
+        $ocradOutput = shell_exec("ocrad " . escapeshellarg($tempp));
         $value = '';
         if ($ocradOutput) {
             $value = trim(strtolower($ocradOutput));
@@ -553,7 +553,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
 
         // Post effects
         if (!$this->ignoreAllEffects && $image) {
-            $this->postEffect($image, $bg ?: null);
+            $this->postEffect($image, $bg ?: 0);
         }
 
         $this->contents = $image;
@@ -625,7 +625,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         }
         switch ($imageType) {
             case "png":
-                imagepng($this->contents, $filename, ($quality / 10)); // quality 0-9
+                imagepng($this->contents, $filename, (int)($quality / 10)); // quality 0-9
                 break;
             case "gif":
                 imagegif($this->contents, $filename);
@@ -650,7 +650,10 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     public function get(int $quality = 90): string
     {
         ob_start();
-        $this->output($quality);
+        try {
+            $this->output($quality);
+        } catch (Exception) {
+        }
 
         return ob_get_clean() ?: '';
     }
