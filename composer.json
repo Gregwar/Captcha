@@ -20,7 +20,6 @@
         "php": ">=8.0",
         "ext-gd": "*",
         "ext-mbstring": "*",
-        "ext-fileinfo": "*",
         "symfony/finder": "*"
     },
     "autoload": {

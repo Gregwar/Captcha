@@ -19,7 +19,7 @@ use function imagettftext;
  */
 class CaptchaBuilder implements CaptchaBuilderInterface
 {
-    public const VERSION = '2.0.0';
+    public const VERSION = '2.0.1';
 
     /** @var int[] $fingerprint */
     protected array $fingerprint = [];
