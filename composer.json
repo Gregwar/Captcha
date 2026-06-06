@@ -17,7 +17,7 @@
         }
     ],
     "require": {
-        "php": ">=8.0",
+        "php": "^8.0",
         "ext-gd": "*",
         "ext-mbstring": "*",
         "ext-fileinfo": "*",
@@ -29,7 +29,7 @@
         }
     },
     "require-dev": {
-        "phpunit/phpunit": "^4.8.35 || ^5.7.21 || ^6.4 || ^7.0 || ^8.0 || ^9.0",
+        "phpunit/phpunit": "^9.0",
         "phpstan/phpstan": "^1.10",
         "squizlabs/php_codesniffer": "^4.0"
     }
