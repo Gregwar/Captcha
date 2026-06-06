@@ -6,7 +6,7 @@
     </include>
   </coverage>
   <testsuites>
-    <testsuite name="KnpMenu Test Suite">
+    <testsuite name="Test Suite">
       <directory suffix="Test.php">./tests/</directory>
     </testsuite>
   </testsuites>
