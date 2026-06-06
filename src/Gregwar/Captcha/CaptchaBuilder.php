@@ -206,7 +206,10 @@ class CaptchaBuilder implements CaptchaBuilderInterface
      */
     public function testPhrase(string $phrase): bool
     {
-        return $this->getPhrase() && $this->builder && $this->builder->niceize($phrase) == $this->builder->niceize($this->getPhrase());
+        return (
+            $this->getPhrase()
+            && $this->builder
+            && $this->builder->niceize($phrase) == $this->builder->niceize($this->getPhrase()));
     }
 
     /**
@@ -244,11 +247,17 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     public function setBackgroundAlpha(int $alpha): static
     {
         if ($alpha < 0 || $alpha > 127) {
-            throw new InvalidArgumentException(self::class . '-' . self::VERSION . ': Argument $alpha must be an integer between 0 and 127.');
+            throw new InvalidArgumentException(
+                self::class . '-' . self::VERSION
+                . ': Argument $alpha must be an integer between 0 and 127.'
+            );
         }
 
         if ($this->getImageType() !== 'png') {
-            throw new LogicException(self::class . '-' . self::VERSION . ': You can only set transparency on PNG images, call setImageType(\'png\')');
+            throw new LogicException(
+                self::class . '-' . self::VERSION
+                . ': You can only set transparency on PNG images, call setImageType(\'png\')'
+            );
         }
 
         $this->bgAlpha = $alpha;
@@ -420,7 +429,10 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     public function isOCRReadable(): bool
     {
         if (!is_dir($this->tempDir) && !mkdir($this->tempDir, 0755, true)) {
-            throw new Exception(self::class . '-' . self::VERSION . ': Failed to create temporary directory for OCR check: ' . $this->tempDir);
+            throw new Exception(
+                self::class . '-' . self::VERSION
+                . ': Failed to create temporary directory for OCR check: ' . $this->tempDir
+            );
         }
 
         $tempj = $this->tempDir . uniqid('captcha', true) . '.jpg';
@@ -434,7 +446,10 @@ class CaptchaBuilder implements CaptchaBuilderInterface
                 @unlink($tempj);
             }
 
-            throw new Exception(self::class . '-' . self::VERSION . ': isOCRReadable failed to convert file for testing.');
+            throw new Exception(
+                self::class . '-' . self::VERSION
+                . ': isOCRReadable failed to convert file for testing.'
+            );
         }
 
         $ocradOutput = shell_exec("ocrad " . escapeshellarg($tempp));
@@ -454,8 +469,12 @@ class CaptchaBuilder implements CaptchaBuilderInterface
      * @param int[] $fingerprint
      * @throws Exception
      */
-    public function buildAgainstOCR(int $width = 150, int $height = 40, ?string $font = null, ?array $fingerprint = null): void
-    {
+    public function buildAgainstOCR(
+        int $width = 150,
+        int $height = 40,
+        ?string $font = null,
+        ?array $fingerprint = null
+    ): void {
         do {
             $this->build($width, $height, $font, $fingerprint);
         } while ($this->isOCRReadable());
@@ -508,7 +527,10 @@ class CaptchaBuilder implements CaptchaBuilderInterface
             $image = $this->createBackgroundImageFromType($randomBackgroundImage, $imageType);
         }
         if (!$image) {
-            throw new LogicException(self::class . '-' . self::VERSION . ': Failed to create background image');
+            throw new LogicException(
+                self::class . '-' . self::VERSION
+                . ': Failed to create background image'
+            );
         }
         // Apply effects
         if (!$this->ignoreAllEffects) {
@@ -622,7 +644,10 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     {
         $imageType = $this->getImageType();
         if (!$this->contents) {
-            throw new Exception(self::class . '-' . self::VERSION . ': No image generated');
+            throw new Exception(
+                self::class . '-' . self::VERSION
+                . ': No image generated'
+            );
         }
         switch ($imageType) {
             case "png":
@@ -762,13 +787,19 @@ class CaptchaBuilder implements CaptchaBuilderInterface
                 ? $backgroundImageExploded[count($backgroundImageExploded) - 1]
                 : $backgroundImage;
 
-            throw new Exception(self::class . '-' . self::VERSION . ': Invalid background image: ' . $imageFileName);
+            throw new Exception(
+                self::class . '-' . self::VERSION
+                . ': Invalid background image: ' . $imageFileName
+            );
         }
 
         // check image type
         $finfo = finfo_open(FILEINFO_MIME_TYPE);
         if (!$finfo) {
-            throw new Exception(self::class . '-' . self::VERSION . ': Failed finfo_open');
+            throw new Exception(
+                self::class . '-' . self::VERSION
+                . ': Failed finfo_open'
+            );
         }
 
         $imageType = finfo_file($finfo, $backgroundImage);
@@ -776,8 +807,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
 
         if (!in_array($imageType, $this->allowedBackgroundImageTypes)) {
             throw new Exception(
-                self::class
-                    . self::VERSION
+                self::class . '-' . self::VERSION
                     . ': Invalid background image type! Allowed types are: '
                     . join(', ', $this->allowedBackgroundImageTypes)
             );
@@ -796,11 +826,17 @@ class CaptchaBuilder implements CaptchaBuilderInterface
             'image/jpeg' => imagecreatefromjpeg($backgroundImage),
             'image/png' => imagecreatefrompng($backgroundImage),
             'image/gif' => imagecreatefromgif($backgroundImage),
-            default => throw new Exception(self::class . '-' . self::VERSION . ': Not supported file type for background image!'),
+            default => throw new Exception(
+                self::class . '-' . self::VERSION
+                . ': Not supported file type for background image!'
+            ),
         };
 
         if ($image === false) {
-            throw new LogicException(self::class . '-' . self::VERSION . ': Failed to create background image!');
+            throw new LogicException(
+                self::class . '-' . self::VERSION
+                . ': Failed to create background image!'
+            );
         }
 
         return $image;
