@@ -26,7 +26,7 @@ class ImageFileHandler
     /**
      * Frequency of garbage collection in fractions of 1
      */
-    protected int $gcFreq = 0;
+    protected ?int $gcFreq = null;
 
     /**
      * Maximum age of images in minutes
@@ -60,7 +60,7 @@ class ImageFileHandler
      */
     public function collectGarbage(): bool
     {
-        if (mt_rand(0, $this->gcFreq) == 1) {
+        if ($this->gcFreq && mt_rand(1, $this->gcFreq) !== 1) {
             return false;
         }
 
