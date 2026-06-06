@@ -16,10 +16,14 @@ class PhraseBuilder implements PhraseBuilderInterface
     /**
      * Constructs a PhraseBuilder with given parameters
      */
-    public function __construct(int $length = 5, string $charset = 'abcdefghijklmnpqrstuvwxyz123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ')
+    public function __construct(?int $length = null, ?string $charset = null)
     {
-        $this->length = $length;
-        $this->charset = $charset;
+        if ($length !== null) {
+            $this->length = $length;
+        }
+        if ($charset !== null) {
+            $this->charset = $charset;
+        }
     }
 
     /**
