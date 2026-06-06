@@ -22,6 +22,9 @@ class CaptchaBuilder implements CaptchaBuilderInterface
 {
     public const VERSION = '2.0.1';
 
+    /** Temporary dir, for OCR check */
+    public string $tempDir = '';
+
     /** @var int[] $fingerprint */
     protected array $fingerprint = [];
 
@@ -92,6 +95,15 @@ class CaptchaBuilder implements CaptchaBuilderInterface
 
     protected string $imageType = "jpeg";
 
+    public function __construct(?string $phrase = null, ?PhraseBuilderInterface $builder = null)
+    {
+        $this->builder = (!$builder)
+            ? new PhraseBuilder()
+            : $builder;
+        $this->phrase = is_string($phrase) ? $phrase : $this->builder->build($phrase);
+        $this->tempDir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'captcha' . DIRECTORY_SEPARATOR;
+    }
+
     /**
      * The image contents
      */
@@ -108,20 +120,6 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         $this->interpolation = $interpolate;
 
         return $this;
-    }
-
-    /**
-     * Temporary dir, for OCR check
-     */
-    public string $tempDir = '';
-
-    public function __construct(?string $phrase = null, ?PhraseBuilderInterface $builder = null)
-    {
-        $this->builder = (!$builder)
-            ? new PhraseBuilder()
-            : $builder;
-        $this->phrase = is_string($phrase) ? $phrase : $this->builder->build($phrase);
-        $this->tempDir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'captcha' . DIRECTORY_SEPARATOR;
     }
 
     public function setImageType(?string $imageType = null): static
