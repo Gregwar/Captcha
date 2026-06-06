@@ -6,6 +6,7 @@ use Exception;
 use GdImage;
 use InvalidArgumentException;
 use LogicException;
+
 use function imagecolorallocate;
 use function imagettfbbox;
 use function imagettftext;
