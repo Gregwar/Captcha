@@ -30,15 +30,16 @@ class CaptchaBuilder implements CaptchaBuilderInterface
 
     protected bool $useFingerprint = false;
 
-    /** @var int[]|null $textColor */
+    /** @var array<int, int<0, 255>>|null $textColor */
     protected ?array $textColor = null;
 
-    /** @var int[]|null $lineColor */
+    /** @var array<int, int<0, 255>>|null $lineColor */
     protected ?array $lineColor = null;
 
-    /** @var int[]|null $backgroundColor */
+    /** @var array<int, int<0, 255>>|null $backgroundColor */
     protected ?array $backgroundColor = null;
 
+    /** @var int<0, 127> $bgAlpha */
     protected int $bgAlpha = 0;
 
     /** @var string[] $backgroundImages */
@@ -222,6 +223,9 @@ class CaptchaBuilder implements CaptchaBuilderInterface
 
     /**
      * Sets the text color to use
+     * @param int<0, 255> $r
+     * @param int<0, 255> $g
+     * @param int<0, 255> $b
      */
     public function setTextColor(int $r, int $g, int $b): static
     {
@@ -232,6 +236,9 @@ class CaptchaBuilder implements CaptchaBuilderInterface
 
     /**
      * Sets the background color to use
+     * @param int<0, 255> $r
+     * @param int<0, 255> $g
+     * @param int<0, 255> $b
      */
     public function setBackgroundColor(int $r, int $g, int $b): static
     {
@@ -241,8 +248,10 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     }
 
     /**
-     * @param int $alpha 0 to 127, 127 is completely transparent
+     * @param int<0, 127> $alpha 0 to 127, 127 is completely transparent
      * @return $this
+     * @throws InvalidArgumentException
+     * @throws LogicException
      */
     public function setBackgroundAlpha(int $alpha): static
     {
@@ -266,6 +275,9 @@ class CaptchaBuilder implements CaptchaBuilderInterface
 
     /**
      * Sets the line color to use
+     * @param int<0, 255> $r
+     * @param int<0, 255> $g
+     * @param int<0, 255> $b
      */
     public function setLineColor(int $r, int $g, int $b): static
     {
@@ -300,14 +312,14 @@ class CaptchaBuilder implements CaptchaBuilderInterface
      */
     protected function drawLine(GdImage $image, int $width = 150, int $height = 40, ?int $tcol = null): void
     {
-        if ($this->lineColor === null) {
-            $red = $this->rand(100, 255);
-            $green = $this->rand(100, 255);
-            $blue = $this->rand(100, 255);
-        } else {
+        if ($this->lineColor !== null) {
             $red = $this->lineColor[0];
             $green = $this->lineColor[1];
             $blue = $this->lineColor[2];
+        } else {
+            $red = $this->rand(100, 255);
+            $green = $this->rand(100, 255);
+            $blue = $this->rand(100, 255);
         }
 
         if ($tcol === null) {
@@ -555,7 +567,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         }
 
         // Distort the image
-        if ($this->distortion && !$this->ignoreAllEffects) {
+        if ($this->distortion && !$this->ignoreAllEffects && $width > 0 && $height > 0) {
             $image = $this->distort($image, $width, $height, $bg ?: 0);
         }
 
@@ -571,6 +583,8 @@ class CaptchaBuilder implements CaptchaBuilderInterface
 
     /**
      * Distorts the image
+     * @param int<1, max> $width
+     * @param int<1, max> $height
      */
     public function distort(GdImage $image, int $width, int $height, int $bg = 0): ?GdImage
     {
@@ -693,18 +707,23 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     /**
      * Returns a random number or the next number in the
      * fingerprint
+     * @return int<0, 255>
      */
     protected function rand(int $min, int $max): int
     {
         if ($this->useFingerprint) {
-            $value = current($this->fingerprint);
+            $value = (int)current($this->fingerprint);
+            $value = max(0, $value);
+            $value = min(255, $value);
             next($this->fingerprint);
         } else {
             $value = mt_rand($min, $max);
+            $value = max(0, $value);
+            $value = min(255, $value);
             $this->fingerprint[] = $value;
         }
 
-        return (int)$value;
+        return $value;
     }
 
     protected function interpolate(float $x, float $y, int $nw, int $ne, int $sw, int $se): int
