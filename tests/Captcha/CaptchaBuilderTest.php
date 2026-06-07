@@ -40,7 +40,7 @@ class CaptchaBuilderTest extends TestCase
         $captcha = new CaptchaBuilder();
         $captcha
             ->build()
-            ->save($filename = __DIR__.'/../generated/out.jpg');
+            ->save($filename = __DIR__ . '/../generated/out.jpg');
 
         $this->assertTrue(file_exists($filename));
     }
@@ -66,7 +66,7 @@ class CaptchaBuilderTest extends TestCase
             $captcha->setImageType($type)->build();
 
             // Test save()
-            $captcha->save($filename = __DIR__.'/../generated/out.' . $type);
+            $captcha->save($filename = __DIR__ . '/../generated/out.' . $type);
             $this->assertType($filename, $expected);
 
             // Test output()

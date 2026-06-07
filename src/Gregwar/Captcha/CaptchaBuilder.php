@@ -1,12 +1,14 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Gregwar\Captcha;
 
 use GdImage;
-
 use Gregwar\Captcha\Exception\CaptchaException;
 use Gregwar\Captcha\Exception\InvalidArgumentException;
 use Gregwar\Captcha\Exception\LogicException;
+
 use function imagecolorallocate;
 use function imagettfbbox;
 use function imagettftext;
