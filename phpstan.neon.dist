@@ -5,5 +5,3 @@ parameters:
     - src/
     - tests/
   treatPhpDocTypesAsCertain: false
-includes:
-  - phpstan-baseline.neon

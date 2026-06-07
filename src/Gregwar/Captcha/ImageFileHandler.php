@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Gregwar\Captcha;
 
@@ -13,32 +13,13 @@ use Symfony\Component\Finder\Finder;
  */
 class ImageFileHandler
 {
-    /**
-     * Name of folder for captcha images
-     */
-    protected string $imageFolder;
-
-    /**
-     * Absolute path to public web folder
-     */
-    protected string $webPath;
-
-    /**
-     * Frequency of garbage collection in fractions of 1
-     */
-    protected ?int $gcFreq = null;
-
-    /**
-     * Maximum age of images in minutes
-     */
-    protected int $expiration;
-
-    public function __construct(string $imageFolder, string $webPath, int $gcFreq, int $expiration)
-    {
-        $this->imageFolder      = $imageFolder;
-        $this->webPath          = $webPath;
-        $this->gcFreq           = $gcFreq;
-        $this->expiration       = $expiration;
+    public function __construct(
+        protected string $imageFolder,
+        protected string $webPath,
+        protected ?int $gcFreq,
+        protected int $expiration
+    ) {
+        //
     }
 
     /**

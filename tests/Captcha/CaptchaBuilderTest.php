@@ -40,9 +40,9 @@ class CaptchaBuilderTest extends TestCase
         $captcha = new CaptchaBuilder();
         $captcha
             ->build()
-            ->save('out.jpg');
+            ->save($filename = __DIR__.'/../generated/out.jpg');
 
-        $this->assertTrue(file_exists(__DIR__ . '/../../out.jpg'));
+        $this->assertTrue(file_exists($filename));
     }
 
     public function testFingerPrint(): void
@@ -66,14 +66,14 @@ class CaptchaBuilderTest extends TestCase
             $captcha->setImageType($type)->build();
 
             // Test save()
-            $captcha->save('out.' . $type);
-            $this->assertType(__DIR__ . '/../../out.' . $type, $expected);
+            $captcha->save($filename = __DIR__.'/../generated/out.' . $type);
+            $this->assertType($filename, $expected);
 
             // Test output()
             ob_start();
             $captcha->output();
-            file_put_contents(__DIR__ . '/../../out.' . $type, ob_get_clean());
-            $this->assertType(__DIR__ . '/../../out.' . $type, $expected);
+            file_put_contents($filename, ob_get_clean());
+            $this->assertType($filename, $expected);
         }
     }
 
@@ -85,7 +85,7 @@ class CaptchaBuilderTest extends TestCase
                 ->setBackgroundColor(0, 0, 0)
                 ->setBackgroundAlpha($alpha)
                 ->build()
-                ->save($filename = __DIR__ . '/out.png');
+                ->save($filename = __DIR__ . '/../generated/out.png');
 
             $this->assertTransparency($filename, $expected);
         }
@@ -113,7 +113,6 @@ class CaptchaBuilderTest extends TestCase
                 }
             }
         }
-        imagedestroy($image);
 
         $this->assertSame($expected, $hasTransparency, 'The PNG does not have any transparent pixels.');
     }

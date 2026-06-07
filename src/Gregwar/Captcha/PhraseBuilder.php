@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Gregwar\Captcha;
 
@@ -9,21 +9,11 @@ namespace Gregwar\Captcha;
  */
 class PhraseBuilder implements PhraseBuilderInterface
 {
-    public int $length = 5;
-
-    public string $charset = 'abcdefghijklmnpqrstuvwxyz123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-
-    /**
-     * Constructs a PhraseBuilder with given parameters
-     */
-    public function __construct(?int $length = null, ?string $charset = null)
-    {
-        if ($length !== null) {
-            $this->length = $length;
-        }
-        if ($charset !== null) {
-            $this->charset = $charset;
-        }
+    public function __construct(
+        public int $length = 5,
+        public string $charset = 'abcdefghijklmnpqrstuvwxyz123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    ) {
+        //
     }
 
     /**
