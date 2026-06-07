@@ -21,7 +21,9 @@
         "ext-gd": "*",
         "ext-mbstring": "*",
         "ext-fileinfo": "*",
-        "symfony/finder": "*"
+        "symfony/finder": "*",
+        "phpstan/phpstan": "2.1.17",
+        "phpstan/phpstan-phpunit": "2.0.6"
     },
     "autoload": {
         "psr-4": {

@@ -359,7 +359,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         }
 
         if ($tcol === null) {
-            $tcol = imagecolorallocate($image, $red, $green, $blue);
+            $tcol = imagecolorallocate($image, min(255, max(0, (int)$red)), min(255, max(0, (int)$green)), min(255, max(0, (int)$blue)));
         }
 
         if ($this->rand(0, 1)) { // Horizontal
@@ -441,7 +441,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         } else {
             $textColor = $this->textColor;
         }
-        $col = \imagecolorallocate($image, $textColor[0], $textColor[1], $textColor[2]);
+        $col = \imagecolorallocate($image, min(255, max(0, (int)$textColor[0])), min(255, max(0, (int)$textColor[1])), min(255, max(0, (int)$textColor[2])));
 
         // Write the letters one by one, with random angle
         for ($i = 0; $i < $length; $i++) {
@@ -508,18 +508,18 @@ class CaptchaBuilder implements CaptchaBuilderInterface
 
         if (empty($this->backgroundImages)) {
             // if background images list is not set, use a color fill as a background
-            $image   = imagecreatetruecolor($width, $height);
+            $image   = imagecreatetruecolor(max(1, (int)$width), max(1, (int)$height));
             if ($this->backgroundColor == null) {
                 $bg = imagecolorallocatealpha(
                     $image,
-                    $this->rand(200, 255),
-                    $this->rand(200, 255),
-                    $this->rand(200, 255),
-                    $this->bgAlpha
+                    min(255, max(0, $this->rand(200, 255))),
+                    min(255, max(0, $this->rand(200, 255))),
+                    min(255, max(0, $this->rand(200, 255))),
+                    min(127, max(0, $this->bgAlpha))
                 );
             } else {
                 $color = $this->backgroundColor;
-                $bg = imagecolorallocatealpha($image, $color[0], $color[1], $color[2], $this->bgAlpha);
+                $bg = imagecolorallocatealpha($image, min(255, max(0, (int)$color[0])), min(255, max(0, (int)$color[1])), min(255, max(0, (int)$color[2])), min(127, max(0, $this->bgAlpha)));
             }
             imagefill($image, 0, 0, $bg);
             imagesavealpha($image, true);
@@ -589,7 +589,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
      */
     public function distort($image, $width, $height, $bg)
     {
-        $contents = imagecreatetruecolor($width, $height);
+        $contents = imagecreatetruecolor(max(1, (int)$width), max(1, (int)$height));
         imagefill($contents, 0, 0, $bg);
         imagesavealpha($contents, true);
         $X          = $this->rand(0, $width);
@@ -709,7 +709,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         }
 
         if ($this->useFingerprint) {
-            $value = current($this->fingerprint);
+            $value = (int)current($this->fingerprint);
             next($this->fingerprint);
         } else {
             $value = mt_rand((int)$min, (int)$max);
