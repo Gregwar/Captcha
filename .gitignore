@@ -1,5 +1,7 @@
-.idea/
-demo/*.jpg
-demo/*.pgm
-demo/temp/
-vendor/
+/.idea/
+/.phpunit.result.cache
+/composer.lock
+/demo/*.jpg
+/demo/*.pgm
+/demo/temp/
+/vendor/
