@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Gregwar\Captcha;
 
+use Gregwar\Captcha\Exception\InvalidArgumentException;
+
 /**
  * Generates random phrase
  *
@@ -65,6 +67,10 @@ class PhraseBuilder implements PhraseBuilderInterface
 
     private function getRandomCharacter(): string
     {
+        if ($this->charset === '') {
+            throw new InvalidArgumentException('Charset cannot be empty.');
+        }
+
         try {
             return $this->charset[random_int(0, strlen($this->charset) - 1)];
         } catch (\Random\RandomException $e) {
