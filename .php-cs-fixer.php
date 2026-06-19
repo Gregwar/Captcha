@@ -64,6 +64,27 @@ return (new PhpCsFixer\Config())
         'no_unused_imports' => true,
         'ordered_imports' => [
             'sort_algorithm' => 'alpha'
+        ],
+        'ordered_class_elements' => [
+            'order' => [
+                'use_trait',
+                'case',
+                'constant_public',
+                'constant_protected',
+                'constant_private',
+                'property_public_static',
+                'property_protected_static',
+                'property_private_static',
+                'property_public',
+                'property_protected',
+                'property_private',
+                'construct',
+                'method_public',
+                'method_protected',
+                'method_private',
+                'magic',
+            ],
+            'sort_algorithm' => 'alpha',
         ]
     ])
     ->setIndent("    ")

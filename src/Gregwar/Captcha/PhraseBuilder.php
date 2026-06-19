@@ -42,11 +42,11 @@ class PhraseBuilder implements PhraseBuilderInterface
     }
 
     /**
-     * "Niceize" a code
+     * A static helper to compare
      */
-    public function niceize(string $str): string
+    public static function comparePhrases(string $str1, string $str2): bool
     {
-        return self::doNiceize($str);
+        return self::doNiceize($str1) === self::doNiceize($str2);
     }
 
     /**
@@ -58,11 +58,11 @@ class PhraseBuilder implements PhraseBuilderInterface
     }
 
     /**
-     * A static helper to compare
+     * "Niceize" a code
      */
-    public static function comparePhrases(string $str1, string $str2): bool
+    public function niceize(string $str): string
     {
-        return self::doNiceize($str1) === self::doNiceize($str2);
+        return self::doNiceize($str);
     }
 
     private function getRandomCharacter(): string

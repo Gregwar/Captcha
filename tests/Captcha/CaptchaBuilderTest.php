@@ -20,11 +20,6 @@ class CaptchaBuilderTest extends TestCase
         'world'
     ];
 
-    public function testCreate(): void
-    {
-        $this->assertInstanceOf('Gregwar\Captcha\CaptchaBuilder', CaptchaBuilder::create());
-    }
-
     public function testBuild(): void
     {
         $this->assertInstanceOf('Gregwar\Captcha\CaptchaBuilder', CaptchaBuilder::create()->build());
@@ -33,6 +28,11 @@ class CaptchaBuilderTest extends TestCase
             $builder = new CaptchaBuilder($phrase);
             $this->assertEquals($phrase, $builder->getPhrase());
         }
+    }
+
+    public function testCreate(): void
+    {
+        $this->assertInstanceOf('Gregwar\Captcha\CaptchaBuilder', CaptchaBuilder::create());
     }
 
     public function testDemo(): void
@@ -52,6 +52,20 @@ class CaptchaBuilderTest extends TestCase
             ->getFingerprint());
 
         $this->assertTrue(is_int($int)); // @phpstan-ignore function.alreadyNarrowedType
+    }
+
+    public function testImageTransparency(): void
+    {
+        foreach ([0 => false, 127 => true] as $alpha => $expected) {
+            $captcha = new CaptchaBuilder();
+            $captcha->setImageType('png')
+                ->setBackgroundColor(0, 0, 0)
+                ->setBackgroundAlpha($alpha)
+                ->build()
+                ->save($filename = __DIR__ . '/../generated/out.png');
+
+            $this->assertTransparency($filename, $expected);
+        }
     }
 
     public function testImageType(): void
@@ -74,20 +88,6 @@ class CaptchaBuilderTest extends TestCase
             $captcha->output();
             file_put_contents($filename, ob_get_clean());
             $this->assertType($filename, $expected);
-        }
-    }
-
-    public function testImageTransparency(): void
-    {
-        foreach ([0 => false, 127 => true] as $alpha => $expected) {
-            $captcha = new CaptchaBuilder();
-            $captcha->setImageType('png')
-                ->setBackgroundColor(0, 0, 0)
-                ->setBackgroundAlpha($alpha)
-                ->build()
-                ->save($filename = __DIR__ . '/../generated/out.png');
-
-            $this->assertTransparency($filename, $expected);
         }
     }
 
