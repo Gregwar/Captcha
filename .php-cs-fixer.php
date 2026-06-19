@@ -14,8 +14,6 @@ return (new PhpCsFixer\Config())
         'no_superfluous_phpdoc_tags' => true,
         'single_class_element_per_statement' => true,
         'class_attributes_separation' => ['elements' => ['method' => 'one']],
-        'no_superfluous_phpdoc_tags' => true,
-        'single_class_element_per_statement' => true,
         'array_syntax' => [
             'syntax' => 'short'
         ],
