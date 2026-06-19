@@ -5,3 +5,7 @@
 /phpstan.neon.dist export-ignore
 /phpunit.xml.dist export-ignore
 /tests/ export-ignore
+
+* text=auto
+*.neon eol=lf
+*.php eol=lf
