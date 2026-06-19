@@ -21,6 +21,22 @@ class PhraseBuilder implements PhraseBuilderInterface
     }
 
     /**
+     * A static helper to compare
+     */
+    public static function comparePhrases(string $str1, string $str2): bool
+    {
+        return self::doNiceize($str1) === self::doNiceize($str2);
+    }
+
+    /**
+     * A static helper to niceize
+     */
+    public static function doNiceize(string $str): string
+    {
+        return strtr(strtolower($str), '01', 'ol');
+    }
+
+    /**
      * Generates a random phrase of given length with given charset
      */
     public function build(?int $length = null, ?string $charset = null): string
@@ -39,22 +55,6 @@ class PhraseBuilder implements PhraseBuilderInterface
         }
 
         return $phrase;
-    }
-
-    /**
-     * A static helper to compare
-     */
-    public static function comparePhrases(string $str1, string $str2): bool
-    {
-        return self::doNiceize($str1) === self::doNiceize($str2);
-    }
-
-    /**
-     * A static helper to niceize
-     */
-    public static function doNiceize(string $str): string
-    {
-        return strtr(strtolower($str), '01', 'ol');
     }
 
     /**

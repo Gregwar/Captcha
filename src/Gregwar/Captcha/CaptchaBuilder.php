@@ -106,6 +106,14 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     }
 
     /**
+     * Instantiation
+     */
+    public static function create(?string $phrase = null): CaptchaBuilder
+    {
+        return new self($phrase);
+    }
+
+    /**
      * Generate the image
      * @param int[] $fingerprint
      * @throws CaptchaException
@@ -220,14 +228,6 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         do {
             $this->build($width, $height, $font, $fingerprint);
         } while ($this->isOCRReadable());
-    }
-
-    /**
-     * Instantiation
-     */
-    public static function create(?string $phrase = null): CaptchaBuilder
-    {
-        return new self($phrase);
     }
 
     /**
