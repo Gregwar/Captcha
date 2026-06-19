@@ -15,7 +15,7 @@ class PhraseBuilder implements PhraseBuilderInterface
 {
     public function __construct(
         public int $length = 5,
-        public string $charset = 'abcdefghijklmnpqrstuvwxyz123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+        public string $charset = 'abcdefghijklmnpqrstuvwxyz123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ',
     ) {
         //
     }

@@ -473,7 +473,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         int $width = 150,
         int $height = 40,
         ?string $font = null,
-        ?array $fingerprint = null
+        ?array $fingerprint = null,
     ): void {
         do {
             $this->build($width, $height, $font, $fingerprint);
