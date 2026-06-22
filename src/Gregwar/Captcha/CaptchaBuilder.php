@@ -165,7 +165,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         // Apply effects
         if (!$this->ignoreAllEffects) {
             $square = $width * $height;
-            $effects = $this->rand((int)($square / 3000), (int)($square / 2000));
+            $effects = $this->rand((int) ($square / 3000), (int) ($square / 2000));
 
             // set the maximum number of lines to draw in front of the text
             if ($this->maxBehindLines != null && $this->maxBehindLines > 0) {
@@ -185,7 +185,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         // Apply effects
         if (!$this->ignoreAllEffects) {
             $square = $width * $height;
-            $effects = $this->rand((int)($square / 3000), (int)($square / 2000));
+            $effects = $this->rand((int) ($square / 3000), (int) ($square / 2000));
 
             // set the maximum number of lines to draw in front of the text
             if ($this->maxFrontLines != null && $this->maxFrontLines > 0) {
@@ -404,7 +404,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         }
         switch ($imageType) {
             case "png":
-                imagepng($this->contents, $filename, (int)($quality / 10)); // quality 0-9
+                imagepng($this->contents, $filename, (int) ($quality / 10)); // quality 0-9
                 break;
             case "gif":
                 imagegif($this->contents, $filename);
@@ -623,18 +623,18 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         }
 
         if ($this->rand(0, 1)) { // Horizontal
-            $Xa   = $this->rand(0, (int)($width / 2));
+            $Xa   = $this->rand(0, (int) ($width / 2));
             $Ya   = $this->rand(0, $height);
-            $Xb   = $this->rand((int)($width / 2), $width);
+            $Xb   = $this->rand((int) ($width / 2), $width);
             $Yb   = $this->rand(0, $height);
         } else { // Vertical
             $Xa   = $this->rand(0, $width);
-            $Ya   = $this->rand(0, (int)($height / 2));
+            $Ya   = $this->rand(0, (int) ($height / 2));
             $Xb   = $this->rand(0, $width);
-            $Yb   = $this->rand((int)($height / 2), $height);
+            $Yb   = $this->rand((int) ($height / 2), $height);
         }
         imagesetthickness($image, $this->rand(1, 3));
-        imageline($image, $Xa, $Ya, $Xb, $Yb, (int)$tcol);
+        imageline($image, $Xa, $Ya, $Xb, $Yb, (int) $tcol);
     }
 
     protected function getCol(GdImage $image, float|int $x, float|int $y, int $background): int
@@ -645,7 +645,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
             return $background;
         }
 
-        return imagecolorat($image, (int)$x, (int)$y) ?: 0;
+        return imagecolorat($image, (int) $x, (int) $y) ?: 0;
     }
 
     /**
@@ -734,7 +734,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     protected function rand(int $min, int $max): int
     {
         if ($this->useFingerprint) {
-            $value = (int)current($this->fingerprint);
+            $value = (int) current($this->fingerprint);
             $value = max(0, $value);
             $value = min(255, $value);
             next($this->fingerprint);
@@ -788,7 +788,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
      */
     protected function writePhrase(GdImage $image, ?string $phrase, string $font, int $width, int $height): ?int
     {
-        $length = mb_strlen((string)$phrase);
+        $length = mb_strlen((string) $phrase);
         if ($length === 0 || !$phrase) {
             return imagecolorallocate($image, 0, 0, 0) ?: null;
         }

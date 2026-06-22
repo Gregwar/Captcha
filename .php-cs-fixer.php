@@ -8,6 +8,7 @@ $finder = PhpCsFixer\Finder::create()
 return (new PhpCsFixer\Config())
     ->setRules([
         '@PSR12' => true,
+        '@PER-CS3x0' => true,
         'no_useless_else' => true,
         'no_useless_return' => true,
         'simplified_if_return' => true,
@@ -25,7 +26,6 @@ return (new PhpCsFixer\Config())
         'concat_space' => [
             'spacing' => 'one'
         ],
-        'constant_case' => true,
         'braces_position' => [
             'functions_opening_brace' => 'next_line_unless_newline_at_signature_end',
             'allow_single_line_empty_anonymous_classes' => true,
