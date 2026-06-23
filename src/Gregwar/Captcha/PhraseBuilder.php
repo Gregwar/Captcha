@@ -15,9 +15,25 @@ class PhraseBuilder implements PhraseBuilderInterface
 {
     public function __construct(
         public int $length = 5,
-        public string $charset = 'abcdefghijklmnpqrstuvwxyz123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+        public string $charset = 'abcdefghijklmnpqrstuvwxyz123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ',
     ) {
         //
+    }
+
+    /**
+     * A static helper to compare
+     */
+    public static function comparePhrases(string $str1, string $str2): bool
+    {
+        return self::doNiceize($str1) === self::doNiceize($str2);
+    }
+
+    /**
+     * A static helper to niceize
+     */
+    public static function doNiceize(string $str): string
+    {
+        return strtr(strtolower($str), '01', 'ol');
     }
 
     /**
@@ -47,22 +63,6 @@ class PhraseBuilder implements PhraseBuilderInterface
     public function niceize(string $str): string
     {
         return self::doNiceize($str);
-    }
-
-    /**
-     * A static helper to niceize
-     */
-    public static function doNiceize(string $str): string
-    {
-        return strtr(strtolower($str), '01', 'ol');
-    }
-
-    /**
-     * A static helper to compare
-     */
-    public static function comparePhrases(string $str1, string $str2): bool
-    {
-        return self::doNiceize($str1) === self::doNiceize($str2);
     }
 
     private function getRandomCharacter(): string

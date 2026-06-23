@@ -1,7 +1,12 @@
 /.gitattributes export-ignore
 /.github/ export-ignore
 /.gitignore export-ignore
+/.php-cs-fixer.php export-ignore
 /demo/ export-ignore
 /phpstan.neon.dist export-ignore
 /phpunit.xml.dist export-ignore
 /tests/ export-ignore
+
+* text=auto
+*.neon eol=lf
+*.php eol=lf
