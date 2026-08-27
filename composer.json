@@ -32,7 +32,7 @@
         "friendsofphp/php-cs-fixer": "^3.49",
         "phpunit/phpunit": "^9.6",
         "phpstan/phpstan": "2.1.17",
-        "squizlabs/php_codesniffer": "4.0.1",
+        "squizlabs/php_codesniffer": "4.0.4",
         "phpstan/phpstan-phpunit": "2.0.6"
     }
 }
