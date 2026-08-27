@@ -139,9 +139,9 @@ class CaptchaBuilder implements CaptchaBuilderInterface
             if ($this->backgroundColor == null) {
                 $bg = imagecolorallocatealpha(
                     $image,
-                    $this->rand(200, 255),
-                    $this->rand(200, 255),
-                    $this->rand(200, 255),
+                    $this->randColor(200, 255),
+                    $this->randColor(200, 255),
+                    $this->randColor(200, 255),
                     $this->bgAlpha
                 );
             } else {
@@ -613,9 +613,9 @@ class CaptchaBuilder implements CaptchaBuilderInterface
             $green = $this->lineColor[1];
             $blue = $this->lineColor[2];
         } else {
-            $red = $this->rand(100, 255);
-            $green = $this->rand(100, 255);
-            $blue = $this->rand(100, 255);
+            $red = $this->randColor(100, 255);
+            $green = $this->randColor(100, 255);
+            $blue = $this->randColor(100, 255);
         }
 
         if ($tcol === null) {
@@ -729,23 +729,30 @@ class CaptchaBuilder implements CaptchaBuilderInterface
     /**
      * Returns a random number or the next number in the
      * fingerprint
-     * @return int<0, 255>
      */
     protected function rand(int $min, int $max): int
     {
         if ($this->useFingerprint) {
             $value = (int) current($this->fingerprint);
-            $value = max(0, $value);
-            $value = min(255, $value);
             next($this->fingerprint);
         } else {
             $value = mt_rand($min, $max);
-            $value = max(0, $value);
-            $value = min(255, $value);
             $this->fingerprint[] = $value;
         }
 
-        return $value;
+        // fingerprint values are user-supplied, so keep them within the requested range
+        return max($min, min($max, $value));
+    }
+
+    /**
+     * Returns a random color component or the next one in the fingerprint
+     * @param int<0, 255> $min
+     * @param int<0, 255> $max
+     * @return int<0, 255>
+     */
+    protected function randColor(int $min, int $max): int
+    {
+        return max(0, min(255, $this->rand($min, $max)));
     }
 
     /**
@@ -805,7 +812,7 @@ class CaptchaBuilder implements CaptchaBuilderInterface
         $y = (int) round(($height - $textHeight) / 2) + $size;
 
         if (!$this->textColor) {
-            $textColor = [$this->rand(0, 150), $this->rand(0, 150), $this->rand(0, 150)];
+            $textColor = [$this->randColor(0, 150), $this->randColor(0, 150), $this->randColor(0, 150)];
         } else {
             $textColor = $this->textColor;
         }

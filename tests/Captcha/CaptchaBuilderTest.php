@@ -30,6 +30,14 @@ class CaptchaBuilderTest extends TestCase
         }
     }
 
+    public function testBuildWithOutOfRangeFingerprint(): void
+    {
+        $builder = new CaptchaBuilder();
+        $builder->build(150, 40, null, [99999, -99999, PHP_INT_MAX, PHP_INT_MIN]);
+
+        $this->assertInstanceOf('GdImage', $builder->getGd());
+    }
+
     public function testCreate(): void
     {
         $this->assertInstanceOf('Gregwar\Captcha\CaptchaBuilder', CaptchaBuilder::create());
@@ -91,6 +99,50 @@ class CaptchaBuilderTest extends TestCase
         }
     }
 
+    public function testRandClampsFingerprintValuesToRequestedRange(): void
+    {
+        $builder = new CaptchaBuilder();
+        $this->setFingerprint($builder, [9999, -9999, 5]);
+
+        $this->assertSame(8, $this->rand($builder, -8, 8));
+        $this->assertSame(-8, $this->rand($builder, -8, 8));
+        $this->assertSame(5, $this->rand($builder, -8, 8));
+    }
+
+    public function testRandColorStaysWithinColorRange(): void
+    {
+        $builder = new CaptchaBuilder();
+        $this->setFingerprint($builder, [9999, -9999]);
+
+        $randColor = new \ReflectionMethod(CaptchaBuilder::class, 'randColor');
+
+        $this->assertSame(255, $randColor->invoke($builder, 0, 255));
+        $this->assertSame(0, $randColor->invoke($builder, 0, 255));
+    }
+
+    public function testRandRespectsRequestedRange(): void
+    {
+        $builder = new CaptchaBuilder();
+
+        mt_srand(42);
+        $values = [];
+        for ($i = 0; $i < 500; $i++) {
+            $values[] = $this->rand($builder, -8, 8);
+        }
+
+        $this->assertGreaterThanOrEqual(-8, min($values));
+        $this->assertLessThanOrEqual(8, max($values));
+        $this->assertLessThan(0, min($values), 'rand() should produce negative values');
+        $this->assertGreaterThan(0, max($values), 'rand() should produce positive values');
+
+        $values = [];
+        for ($i = 0; $i < 500; $i++) {
+            $values[] = $this->rand($builder, 0, 1000);
+        }
+
+        $this->assertGreaterThan(255, max($values), 'rand() should produce values above 255');
+    }
+
     private function assertTransparency(string $filename, bool $expected): void
     {
         $image = imagecreatefrompng($filename);
@@ -124,6 +176,26 @@ class CaptchaBuilderTest extends TestCase
             $this->fail("Not a valid image.");
         } else {
             $this->assertSame($expected, $info[2], 'Unexpected image type.');
+        }
+    }
+
+    private function rand(CaptchaBuilder $builder, int $min, int $max): int
+    {
+        $rand = new \ReflectionMethod(CaptchaBuilder::class, 'rand');
+        $value = $rand->invoke($builder, $min, $max);
+        $this->assertIsInt($value);
+
+        return $value;
+    }
+
+    /**
+     * @param int[] $fingerprint
+     */
+    private function setFingerprint(CaptchaBuilder $builder, array $fingerprint): void
+    {
+        foreach (['fingerprint' => $fingerprint, 'useFingerprint' => true] as $name => $value) {
+            $property = new \ReflectionProperty(CaptchaBuilder::class, $name);
+            $property->setValue($builder, $value);
         }
     }
 }
